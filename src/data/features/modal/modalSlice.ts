@@ -1,10 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-
 export interface ModalState {
   open: boolean;
-  type: string | null;
+  type: string;
   title: string;
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
   props?: Record<string, unknown>;
@@ -12,8 +11,8 @@ export interface ModalState {
 
 const initialState: ModalState = {
   open: false,
-  type: null,
   title: "",
+  type: "",
   props: {},
   onSubmit: () => {},
 };
@@ -25,26 +24,27 @@ export const modalSlice = createSlice({
     showModal: (
       state,
       action: PayloadAction<{
+        title: string;
         type: string;
-        title?: string;
         props?: Record<string, unknown>;
         onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+
       }>
     ) => {
       state.open = true;
-      state.type = action.payload.type;
       state.title = action.payload.title ?? "";
       state.props = action.payload.props ?? {};
+      state.onSubmit = action.payload.onSubmit ?? (() => {});
+      state.type = action.payload.type ?? "";
     },
     hideModal: (state) => {
       state.open = false;
-      state.type = null;
       state.title = "";
+      state.type = "";
       state.props = {};
     },
   },
 });
-
 
 export const { showModal, hideModal } = modalSlice.actions;
 

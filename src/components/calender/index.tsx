@@ -13,21 +13,23 @@ import calenderEvents from "../../utils/dummy.json";
 import CustomTimeGridEvent from "./CustomTimeGridEvent";
 import CustomDateGridEvent from "./CustomDateGridEvent";
 import "@schedule-x/theme-default/dist/index.css";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  //
-} from "@mui/material";
-import dayjs, { Dayjs } from "dayjs";
-import { TimePicker, DatePicker } from "@mui/x-date-pickers";
+// import {
+//   Button,
+//   Dialog,
+//   DialogActions,
+//   DialogContent,
+//   DialogTitle,
+//   FormControl,
+//   InputLabel,
+//   MenuItem,
+//   Select,
+//   TextField,
+//   //
+// } from "@mui/material";
+// import dayjs, { Dayjs } from "dayjs";
+// import { TimePicker, DatePicker } from "@mui/x-date-pickers";
+import { useAppDispatch } from "../../utils/hooks";
+import { showModal } from "../../data/features/modal/modalSlice";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -41,13 +43,14 @@ interface CalendarProps {
 }
 
 function Calendar({ person }: CalendarProps) {
-  const [doctor, setDoctor] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dateValue, setDateValue] = useState<Dayjs | null>(null);
-  const [timeStartValue, setTimeStartValue] = useState<Dayjs | null>(null);
-  const [timeEndValue, setTimeEndValue] = useState<Dayjs | null>(null);
+  // const [doctor, setDoctor] = useState("");
+  // const [dialogOpen, setDialogOpen] = useState(false);
+  // const [dateValue, setDateValue] = useState<Dayjs | null>(null);
+  // const [timeStartValue, setTimeStartValue] = useState<Dayjs | null>(null);
+  // const [timeEndValue, setTimeEndValue] = useState<Dayjs | null>(null);
   const eventsServicePlugin = useMemo(() => createEventsServicePlugin(), []);
   const eventModal = createEventModalPlugin();
+  const dispatch = useAppDispatch();
 
   const allEvents = useMemo(
     () =>
@@ -96,10 +99,11 @@ function Calendar({ person }: CalendarProps) {
 
       onClickDateTime(dateTime) {
         console.log("onClickDateTime", dateTime);
-        setDialogOpen(true); // e.g. 2024-01-01 12:37
-        setDateValue(dayjs(dateTime));
-        setTimeStartValue(dayjs(dateTime));
-        setTimeEndValue(dayjs(dateTime).add(1, "hour"));
+        // setDialogOpen(true);
+        dispatch(
+          showModal({ title: "Create an Appointment", type: "add-appointment", props: {dateTime: dateTime } })
+        );
+        
       },
 
       /**
@@ -164,7 +168,8 @@ function Calendar({ person }: CalendarProps) {
         calendarApp={calendar}
         customComponents={customComponents}
       />
-      <Dialog
+      {/* Kept here just in case */}
+      {/* <Dialog
         fullWidth
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -296,10 +301,10 @@ function Calendar({ person }: CalendarProps) {
             Cancel
           </Button>
           <Button type="submit" variant="contained">
-            Create
+            Submit
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 }
