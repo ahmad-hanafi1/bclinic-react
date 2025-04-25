@@ -2,29 +2,45 @@ import { createTheme } from "@mui/material/styles";
 
 const muiTheme = createTheme({
   typography: {
-    fontFamily: "Rubik",
+    fontFamily: `"Inter", "Segoe UI", "Roboto", "Helvetica Neue", sans-serif`,
     fontSize: 14,
     fontWeightLight: 300,
     fontWeightRegular: 400,
     fontWeightMedium: 500,
   },
   palette: {
+    mode: "light",
     primary: {
-      main: "#22C09B", // Primary color
-      light: "linear-gradient(45deg, #22C09B 30%, #1198BE 70%)", // Gradient for light variation
-      dark: "linear-gradient(45deg, #2B3686 30%, #091D3D 90%)", // Gradient for dark variation
+      main: "#3B82F6",
+      light: "#93C5FD",
+      dark: "#1E40AF",
     },
     secondary: {
-      main: "#091D3D", // Secondary color
-      light: "linear-gradient(45deg, #091D3D 30%, #5DC1C0 90%)", // Gradient for light variation
-      dark: "linear-gradient(45deg, #2B3686 30%, #091D3D 90%)", // Gradient for dark variation
+      main: "#14B8A6",
+      light: "#5EEAD4",
+      dark: "#0F766E",
     },
     info: {
-      main: "#5DC1C0",
+      main: "#38BDF8", 
     },
     error: {
-      main: "#D6123C",
+      main: "#EF4444", 
     },
+    warning: {
+      main: "#F59E0B",
+    },
+    success: {
+      main: "#22C55E",
+    },
+    background: {
+      default: "#F9FAFB", 
+      paper: "#FFFFFF",
+    },
+    text: {
+      primary: "#111827",
+      secondary: "#6B7280",
+    },
+    divider: "#E5E7EB",
   },
   components: {
     MuiTypography: {
@@ -53,13 +69,22 @@ const muiTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "10px",
+          textTransform: "none", 
+          fontWeight: 500,
         },
       },
     },
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: "20px", // Adjust this value to control the roundness of the dialog
+          borderRadius: "20px",
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          borderRadius: "8px",
         },
       },
     },

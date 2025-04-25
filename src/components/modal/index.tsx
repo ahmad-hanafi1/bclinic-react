@@ -26,6 +26,7 @@ const Modal = () => {
         paper: {
           component: "form",
           onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
             if (onSubmit) onSubmit(event);
             dispatch(hideModal());
           },

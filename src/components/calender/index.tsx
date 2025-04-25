@@ -101,9 +101,13 @@ function Calendar({ person }: CalendarProps) {
         console.log("onClickDateTime", dateTime);
         // setDialogOpen(true);
         dispatch(
-          showModal({ title: "Create an Appointment", type: "add-appointment", props: {dateTime: dateTime } })
+          showModal({
+            title: "Create an Appointment",
+            type: "add-appointment",
+            props: { dateTime: dateTime },
+            // onSubmit: handleSumbit,
+          })
         );
-        
       },
 
       /**
@@ -147,6 +151,52 @@ function Calendar({ person }: CalendarProps) {
     },
     events: [],
   });
+
+  // const handleSumbit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   const formData = new FormData(event.currentTarget);
+  //   const formJson = Object.fromEntries((formData as FormData).entries());
+  //   console.log(formJson);
+  //   const color = (() => {
+  //     switch (doctor) {
+  //       case "alice":
+  //         return "#a02920";
+  //       case "bob":
+  //         return "#5D576B";
+  //       case "charlie":
+  //         return "#202b90";
+  //       case "diana":
+  //         return "#7067CF";
+  //       case "ethan":
+  //         return "#7B287D";
+  //       default:
+  //         return "#000000"; // Default color
+  //     }
+  //   })();
+  //   setCalEvents((prev) => {
+  //     const newEvent = {
+  //       id: Date.now(),
+  //       start:
+  //         dateValue?.format("YYYY-MM-DD") +
+  //         " " +
+  //         timeStartValue?.format("HH:mm"),
+  //       end:
+  //         dateValue?.format("YYYY-MM-DD") + " " + timeEndValue?.format("HH:mm"),
+  //       title: formJson.title as string,
+  //       patientName: formJson.patientName as string,
+  //       phoneNumber: formJson.phoneNumber as string,
+  //       doctor,
+  //       color,
+  //       owner: person, // Add the owner property
+  //       _customContent: {
+  //         monthGrid: "",
+  //         monthAgenda: "",
+  //         timeGrid: "",
+  //         dateGrid: "",
+  //       }, // Add the _customContent property
+  //     };
+  //     return [...prev, newEvent];
+  //   });
+  // };
 
   useEffect(() => {
     if (person === "all") {
