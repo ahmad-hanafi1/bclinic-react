@@ -50,14 +50,7 @@ export default function HomeScreen() {
             </Button>
           ))}
         </Box>
-        <Box
-          sx={
-            {
-              // height: "100vh", // height of AppBar and filter bar
-              // overflowY: "scroll",
-            }
-          }
-        >
+        <Box>
           <Calender person={person} />
         </Box>
       </Box>

@@ -13,23 +13,9 @@ import calenderEvents from "../../utils/dummy.json";
 import CustomTimeGridEvent from "./CustomTimeGridEvent";
 import CustomDateGridEvent from "./CustomDateGridEvent";
 import "@schedule-x/theme-default/dist/index.css";
-// import {
-//   Button,
-//   Dialog,
-//   DialogActions,
-//   DialogContent,
-//   DialogTitle,
-//   FormControl,
-//   InputLabel,
-//   MenuItem,
-//   Select,
-//   TextField,
-//   //
-// } from "@mui/material";
-// import dayjs, { Dayjs } from "dayjs";
-// import { TimePicker, DatePicker } from "@mui/x-date-pickers";
 import { useAppDispatch } from "../../utils/hooks";
 import { showModal } from "../../data/features/modal/modalSlice";
+import dayjs from "dayjs";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -43,11 +29,6 @@ interface CalendarProps {
 }
 
 function Calendar({ person }: CalendarProps) {
-  // const [doctor, setDoctor] = useState("");
-  // const [dialogOpen, setDialogOpen] = useState(false);
-  // const [dateValue, setDateValue] = useState<Dayjs | null>(null);
-  // const [timeStartValue, setTimeStartValue] = useState<Dayjs | null>(null);
-  // const [timeEndValue, setTimeEndValue] = useState<Dayjs | null>(null);
   const eventsServicePlugin = useMemo(() => createEventsServicePlugin(), []);
   const eventModal = createEventModalPlugin();
   const dispatch = useAppDispatch();
@@ -105,7 +86,7 @@ function Calendar({ person }: CalendarProps) {
             title: "Create an Appointment",
             type: "add-appointment",
             props: { dateTime: dateTime },
-            // onSubmit: handleSumbit,
+            onSubmit: handleSubmit,
           })
         );
       },
@@ -152,51 +133,49 @@ function Calendar({ person }: CalendarProps) {
     events: [],
   });
 
-  // const handleSumbit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   const formData = new FormData(event.currentTarget);
-  //   const formJson = Object.fromEntries((formData as FormData).entries());
-  //   console.log(formJson);
-  //   const color = (() => {
-  //     switch (doctor) {
-  //       case "alice":
-  //         return "#a02920";
-  //       case "bob":
-  //         return "#5D576B";
-  //       case "charlie":
-  //         return "#202b90";
-  //       case "diana":
-  //         return "#7067CF";
-  //       case "ethan":
-  //         return "#7B287D";
-  //       default:
-  //         return "#000000"; // Default color
-  //     }
-  //   })();
-  //   setCalEvents((prev) => {
-  //     const newEvent = {
-  //       id: Date.now(),
-  //       start:
-  //         dateValue?.format("YYYY-MM-DD") +
-  //         " " +
-  //         timeStartValue?.format("HH:mm"),
-  //       end:
-  //         dateValue?.format("YYYY-MM-DD") + " " + timeEndValue?.format("HH:mm"),
-  //       title: formJson.title as string,
-  //       patientName: formJson.patientName as string,
-  //       phoneNumber: formJson.phoneNumber as string,
-  //       doctor,
-  //       color,
-  //       owner: person, // Add the owner property
-  //       _customContent: {
-  //         monthGrid: "",
-  //         monthAgenda: "",
-  //         timeGrid: "",
-  //         dateGrid: "",
-  //       }, // Add the _customContent property
-  //     };
-  //     return [...prev, newEvent];
-  //   });
-  // };
+  const handleSubmit = (data: any) => {
+    console.log("data", data);
+    const color = (() => {
+      switch (data?.doctor) {
+        case "alice":
+          return "#a02920";
+        case "bob":
+          return "#5D576B";
+        case "charlie":
+          return "#202b90";
+        case "diana":
+          return "#7067CF";
+        case "ethan":
+          return "#7B287D";
+        default:
+          return "";
+      }
+    })();
+
+    const date = dayjs(data.date).format("YYYY-MM-DD");
+    const startTime = dayjs(data.startTime).format("HH:mm");
+    const endTime = dayjs(data.endTime).format("HH:mm");
+    setCalEvents((prev) => {
+      const newEvent = {
+        id: Date.now(),
+        start: date + " " + startTime,
+        end: date + " " + endTime,
+        patientName: data?.patientName,
+        phoneNumber: data?.phoneNumber,
+        doctor: data?.doctor,
+        title: data?.patientName,
+        color,
+        owner: person, // Add the owner property
+        _customContent: {
+          monthGrid: "",
+          monthAgenda: "",
+          timeGrid: "",
+          dateGrid: "",
+        }, // Add the _customContent property
+      };
+      return [...prev, newEvent];
+    });
+  };
 
   useEffect(() => {
     if (person === "all") {
@@ -218,143 +197,6 @@ function Calendar({ person }: CalendarProps) {
         calendarApp={calendar}
         customComponents={customComponents}
       />
-      {/* Kept here just in case */}
-      {/* <Dialog
-        fullWidth
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        slotProps={{
-          paper: {
-            component: "form",
-            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              const formData = new FormData(event.currentTarget);
-              const formJson = Object.fromEntries(
-                (formData as FormData).entries()
-              );
-              console.log(formJson);
-              const color = (() => {
-                switch (doctor) {
-                  case "alice":
-                    return "#a02920";
-                  case "bob":
-                    return "#5D576B";
-                  case "charlie":
-                    return "#202b90";
-                  case "diana":
-                    return "#7067CF";
-                  case "ethan":
-                    return "#7B287D";
-                  default:
-                    return "#000000"; // Default color
-                }
-              })();
-              setCalEvents((prev) => {
-                const newEvent = {
-                  id: Date.now(),
-                  start:
-                    dateValue?.format("YYYY-MM-DD") +
-                    " " +
-                    timeStartValue?.format("HH:mm"),
-                  end:
-                    dateValue?.format("YYYY-MM-DD") +
-                    " " +
-                    timeEndValue?.format("HH:mm"),
-                  title: formJson.title as string,
-                  patientName: formJson.patientName as string,
-                  phoneNumber: formJson.phoneNumber as string,
-                  doctor,
-                  color,
-                  owner: person, // Add the owner property
-                  _customContent: {
-                    monthGrid: "",
-                    monthAgenda: "",
-                    timeGrid: "",
-                    dateGrid: "",
-                  }, // Add the _customContent property
-                };
-                return [...prev, newEvent];
-              });
-              setDialogOpen(false);
-            },
-          },
-        }}
-      >
-        <DialogTitle>Create an Appointment</DialogTitle>
-        <DialogContent
-          sx={{ padding: 2, display: "flex", gap: 2, flexDirection: "column" }}
-        >
-          <DatePicker
-            name="date"
-            label="Date"
-            value={dateValue ? dateValue.toDate() : null}
-            onChange={(newValue) =>
-              setDateValue(newValue ? dayjs(newValue) : null)
-            }
-          />
-          <TimePicker
-            label="Start Time"
-            name="startTime"
-            value={timeStartValue ? timeStartValue.toDate() : null}
-            onChange={(newValue) =>
-              setTimeStartValue(newValue ? dayjs(newValue) : null)
-            }
-          />
-          <TimePicker
-            label="End Time"
-            name="endTime"
-            value={timeEndValue ? timeEndValue.toDate() : null}
-            onChange={(newValue) =>
-              setTimeEndValue(newValue ? dayjs(newValue) : null)
-            }
-          />
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="patientName"
-            name="patientName"
-            label="Patient Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-          />
-          <TextField
-            required
-            margin="dense"
-            id="phoneNumber"
-            name="phoneNumber"
-            label="Patient Phone Number"
-            type="text"
-            fullWidth
-            variant="outlined"
-          />
-          <FormControl>
-            <InputLabel id="doctor-label">Doctor</InputLabel>
-            <Select
-              labelId="doctor-label"
-              id="doctor"
-              value={doctor}
-              label="Doctor"
-              onChange={(event) => setDoctor(event.target.value as string)}
-            >
-              <MenuItem value={"alice"}>Alice</MenuItem>
-              <MenuItem value={"bob"}>Bob</MenuItem>
-              <MenuItem value={"charlie"}>Charlie</MenuItem>
-              <MenuItem value={"diana"}>Diana</MenuItem>
-              <MenuItem value={"ethan"}>Ethan</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ padding: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} variant="outlined">
-            Cancel
-          </Button>
-          <Button type="submit" variant="contained">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog> */}
     </>
   );
 }

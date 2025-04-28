@@ -10,9 +10,7 @@ import { hideModal } from "../../data/features/modal/modalSlice";
 import modalContent from "./modalContentsMap";
 
 const Modal = () => {
-  const { open, onSubmit, title, type } = useAppSelector(
-    (state) => state.modal
-  );
+  const { open, title, type } = useAppSelector((state) => state.modal);
 
   const ContentComponent = type ? modalContent[type] : null;
 
@@ -22,20 +20,20 @@ const Modal = () => {
       fullWidth
       open={open}
       onClose={() => dispatch(hideModal())}
-      slotProps={{
-        paper: {
-          component: "form",
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            if (onSubmit) onSubmit(event);
-            dispatch(hideModal());
-          },
-        },
-      }}
+      slotProps={
+        {
+          // paper: {
+          //   component: "form",
+          //   // onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+          //   //   dispatch(hideModal());
+          //   // },
+          // },
+        }
+      }
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent
-        sx={{ padding: 2, display: "flex", gap: 2, flexDirection: "column" }}
+        sx={{ padding: 2,  }}
       >
         {ContentComponent && <ContentComponent />}
       </DialogContent>
@@ -43,17 +41,7 @@ const Modal = () => {
         <Button onClick={() => dispatch(hideModal())} variant="outlined">
           Cancel
         </Button>
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{
-            transition: "color 0.3s ease, background-color 0.3s ease",
-            color: "white",
-            "&:hover": {
-              color: "black",
-            },
-          }}
-        >
+        <Button form="modal-form" type="submit" variant="contained">
           Submit
         </Button>
       </DialogActions>

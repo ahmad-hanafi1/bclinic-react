@@ -5,7 +5,7 @@ export interface ModalState {
   open: boolean;
   type: string;
   title: string;
-  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (data: any) => void;
   props?: Record<string, unknown>;
 }
 
@@ -27,8 +27,7 @@ export const modalSlice = createSlice({
         title: string;
         type: string;
         props?: Record<string, unknown>;
-        onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void;
-
+        onSubmit?: (data: any) => void;
       }>
     ) => {
       state.open = true;

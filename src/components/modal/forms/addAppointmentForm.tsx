@@ -6,85 +6,134 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
-import dayjs, { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
-import { useAppSelector } from "../../../utils/hooks";
+import dayjs from "dayjs";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
+import { useForm, Controller } from "react-hook-form";
+import { hideModal } from "../../../data/features/modal/modalSlice";
+
+interface AppointmentFormInputs {
+  date: Date | null;
+  startTime: Date | null;
+  endTime: Date | null;
+  patientName: string;
+  phoneNumber: string;
+  doctor: string;
+}
 
 const AddAppointmentForm = () => {
-  const { props } = useAppSelector((state) => state.modal);
-  const [doctor, setDoctor] = useState("");
-  const [dateValue, setDateValue] = useState<Dayjs | null>(null);
-  const [timeStartValue, setTimeStartValue] = useState<Dayjs | null>(null);
-  const [timeEndValue, setTimeEndValue] = useState<Dayjs | null>(null);
+  const dispatch = useAppDispatch();
+  const { props, onSubmit } = useAppSelector((state) => state.modal);
+
+  const { register, control, handleSubmit, setValue } =
+    useForm<AppointmentFormInputs>({
+      defaultValues: {
+        date: null,
+        startTime: null,
+        endTime: null,
+        patientName: "",
+        phoneNumber: "",
+        doctor: "",
+      },
+    });
 
   useEffect(() => {
-    setDateValue(dayjs(props?.dateTime as string));
-    setTimeStartValue(dayjs(props?.dateTime as string));
-    setTimeEndValue(dayjs(props?.dateTime as string).add(1, "hour"));
-  }, [props?.dateTime]);
+    const initialDate = dayjs(props?.dateTime as string);
+    setValue("date", initialDate.toDate());
+    setValue("startTime", initialDate.toDate());
+    setValue("endTime", initialDate.add(1, "hour").toDate());
+  }, [props?.dateTime, setValue]);
+
+  const submitFunction = (data: AppointmentFormInputs) => {
+    if (onSubmit) {
+      onSubmit(data);
+    }
+    dispatch(hideModal());
+  };
 
   return (
-    <>
-      <DatePicker
+    <form
+      onSubmit={handleSubmit(submitFunction)}
+      id="modal-form"
+      style={{ display: "flex", gap: 3, flexDirection: "column" }}
+    >
+      <Controller
         name="date"
-        label="Date"
-        value={dateValue ? dateValue.toDate() : null}
-        onChange={(newValue) => setDateValue(newValue ? dayjs(newValue) : null)}
+        control={control}
+        render={({ field }) => (
+          <DatePicker
+            label="Date"
+            value={field.value}
+            onChange={(newValue) => field.onChange(newValue)}
+          />
+        )}
       />
-      <TimePicker
-        label="Start Time"
+
+      <Controller
         name="startTime"
-        value={timeStartValue ? timeStartValue.toDate() : null}
-        onChange={(newValue) =>
-          setTimeStartValue(newValue ? dayjs(newValue) : null)
-        }
+        control={control}
+        render={({ field }) => (
+          <TimePicker
+            label="Start Time"
+            value={field.value}
+            onChange={(newValue) => field.onChange(newValue)}
+          />
+        )}
       />
-      <TimePicker
-        label="End Time"
+
+      <Controller
         name="endTime"
-        value={timeEndValue ? timeEndValue.toDate() : null}
-        onChange={(newValue) =>
-          setTimeEndValue(newValue ? dayjs(newValue) : null)
-        }
+        control={control}
+        render={({ field }) => (
+          <TimePicker
+            label="End Time"
+            value={field.value}
+            onChange={(newValue) => field.onChange(newValue)}
+          />
+        )}
       />
+
       <TextField
         autoFocus
         required
         margin="dense"
-        id="patientName"
-        name="patientName"
         label="Patient Name"
-        type="text"
         fullWidth
         variant="outlined"
+        {...register("patientName", { required: true })}
       />
+
       <TextField
         required
         margin="dense"
-        id="phoneNumber"
-        name="phoneNumber"
         label="Patient Phone Number"
-        type="text"
         fullWidth
         variant="outlined"
+        {...register("phoneNumber", { required: true })}
       />
-      <FormControl>
+
+      <FormControl fullWidth margin="dense">
         <InputLabel id="doctor-label">Doctor</InputLabel>
-        <Select
-          labelId="doctor-label"
-          id="doctor"
-          value={doctor}
-          label="Doctor"
-          onChange={(event) => setDoctor(event.target.value as string)}
-        >
-          <MenuItem value={"alice"}>Alice</MenuItem>
-          <MenuItem value={"bob"}>Bob</MenuItem>
-          <MenuItem value={"charlie"}>Charlie</MenuItem>
-          <MenuItem value={"diana"}>Diana</MenuItem>
-          <MenuItem value={"ethan"}>Ethan</MenuItem>
-        </Select>
+        <Controller
+          name="doctor"
+          control={control}
+          render={({ field }) => (
+            <Select
+              labelId="doctor-label"
+              label="Doctor"
+              value={field.value}
+              onChange={field.onChange}
+            >
+              <MenuItem value={"alice"}>Alice</MenuItem>
+              <MenuItem value={"bob"}>Bob</MenuItem>
+              <MenuItem value={"charlie"}>Charlie</MenuItem>
+              <MenuItem value={"diana"}>Diana</MenuItem>
+              <MenuItem value={"ethan"}>Ethan</MenuItem>
+            </Select>
+          )}
+        />
       </FormControl>
-    </>
+    </form>
   );
 };
 
