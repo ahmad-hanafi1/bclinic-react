@@ -16,25 +16,9 @@ const Modal = () => {
 
   const dispatch = useAppDispatch();
   return (
-    <Dialog
-      fullWidth
-      open={open}
-      onClose={() => dispatch(hideModal())}
-      slotProps={
-        {
-          // paper: {
-          //   component: "form",
-          //   // onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-          //   //   dispatch(hideModal());
-          //   // },
-          // },
-        }
-      }
-    >
+    <Dialog fullWidth open={open} onClose={() => dispatch(hideModal())}>
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent
-        sx={{ padding: 2,  }}
-      >
+      <DialogContent sx={{ padding: 2 }}>
         {ContentComponent && <ContentComponent />}
       </DialogContent>
       <DialogActions sx={{ padding: 2 }}>
