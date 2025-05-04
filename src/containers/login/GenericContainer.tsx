@@ -18,7 +18,6 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
-// import logo from "../../assets/logo.png";
 
 interface AuthContainerProps {
   title: string;

@@ -4,6 +4,7 @@ import modalReducer from "../features/modal/modalSlice";
 import authReducer from "../features/auth/authSlice";
 import patientReducer from "../features/patient/patientSlice";
 import doctorReducer from "../features/doctor/doctorSlice";
+import calenderReducer from "../features/calender/calenderSlice";
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     auth: authReducer,
     patient: patientReducer,
     doctor: doctorReducer,
+    calender: calenderReducer,
   },
 });
 

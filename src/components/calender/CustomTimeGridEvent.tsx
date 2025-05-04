@@ -5,9 +5,9 @@ type props = {
     start: string;
     end: string;
     color: string;
-    patientName: string;
-    phoneNumber: string;
-    doctor: string;
+    // phoneNumber: string;
+    patient: { id: number; name: string };
+    doctor: { id: number; name: string };
   };
 };
 
@@ -32,11 +32,14 @@ export default function CustomTimeGridEvent({ calendarEvent }: props) {
       }}
     >
       <p>{`Doctor: ${
-        calendarEvent.doctor.charAt(0).toUpperCase() +
-        calendarEvent.doctor.slice(1)
+        calendarEvent.doctor?.name.charAt(0).toUpperCase() +
+        calendarEvent.doctor?.name.slice(1)
       }`}</p>
-      <p>{`Patient: ${calendarEvent.patientName}`}</p>
-      <p>{`Phone: ${calendarEvent.phoneNumber}`}</p>
+      <p>{`Patient: ${
+        calendarEvent.patient?.name.charAt(0).toUpperCase() +
+        calendarEvent.patient?.name.slice(1)
+      }`}</p>
+      {/* <p>{`Phone: ${calendarEvent.phoneNumber}`}</p> */}
     </div>
   );
 }

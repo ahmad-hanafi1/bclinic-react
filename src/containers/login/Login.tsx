@@ -6,7 +6,6 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import config from "../../../config";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
@@ -14,7 +13,7 @@ import FaceIcon from "@mui/icons-material/Face";
 import { useEffect } from "react";
 import { LoginModel } from "./Types";
 import LoadingButton from "@mui/lab/LoadingButton";
-import AuthContainer from "../auth/GenericContainer";
+import AuthContainer from "./GenericContainer";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { loginUser } from "../../data/features/auth/authSlice";
 

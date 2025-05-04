@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import {
   viewWeek,
@@ -9,13 +9,11 @@ import {
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
 import { createEventsServicePlugin } from "@schedule-x/events-service";
-import calenderEvents from "../../utils/dummy.json";
 import CustomTimeGridEvent from "./CustomTimeGridEvent";
 import CustomDateGridEvent from "./CustomDateGridEvent";
 import "@schedule-x/theme-default/dist/index.css";
-import { useAppDispatch } from "../../utils/hooks";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { showModal } from "../../data/features/modal/modalSlice";
-import dayjs from "dayjs";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -24,27 +22,11 @@ const customComponents = {
   dateGridEvent: CustomDateGridEvent,
 };
 
-interface CalendarProps {
-  person: string;
-}
-
-function Calendar({ person }: CalendarProps) {
+function Calendar() {
   const eventsServicePlugin = useMemo(() => createEventsServicePlugin(), []);
   const eventModal = createEventModalPlugin();
+  const { appointments } = useAppSelector((state) => state.calender);
   const dispatch = useAppDispatch();
-
-  const allEvents = useMemo(
-    () =>
-      calenderEvents.flatMap((person) =>
-        person.events.map((event) => ({
-          ...event,
-          owner: person.name,
-        }))
-      ),
-    []
-  );
-
-  const [calEvents, setCalEvents] = useState(allEvents);
 
   const calendar = useCalendarApp({
     locale: "en-US",
@@ -86,7 +68,6 @@ function Calendar({ person }: CalendarProps) {
             title: "Create an Appointment",
             type: "add-appointment",
             props: { dateTime: dateTime },
-            onSubmit: handleSubmit,
           })
         );
       },
@@ -133,63 +114,11 @@ function Calendar({ person }: CalendarProps) {
     events: [],
   });
 
-  const handleSubmit = (data: any) => {
-    console.log("data", data);
-    const color = (() => {
-      switch (data?.doctor) {
-        case "alice":
-          return "#a02920";
-        case "bob":
-          return "#5D576B";
-        case "charlie":
-          return "#202b90";
-        case "diana":
-          return "#7067CF";
-        case "ethan":
-          return "#7B287D";
-        default:
-          return "";
-      }
-    })();
-
-    const date = dayjs(data.date).format("YYYY-MM-DD");
-    const startTime = dayjs(data.startTime).format("HH:mm");
-    const endTime = dayjs(data.endTime).format("HH:mm");
-    setCalEvents((prev) => {
-      const newEvent = {
-        id: Date.now(),
-        start: date + " " + startTime,
-        end: date + " " + endTime,
-        patientName: data?.patientName,
-        phoneNumber: data?.phoneNumber,
-        doctor: data?.doctor,
-        title: data?.patientName,
-        color,
-        owner: person, // Add the owner property
-        _customContent: {
-          monthGrid: "",
-          monthAgenda: "",
-          timeGrid: "",
-          dateGrid: "",
-        }, // Add the _customContent property
-      };
-      return [...prev, newEvent];
-    });
-  };
-
-  useEffect(() => {
-    if (person === "all") {
-      setCalEvents(allEvents);
-    } else {
-      setCalEvents(allEvents.filter((event) => event.owner === person));
-    }
-  }, [person, allEvents]);
-
   useEffect(() => {
     if (eventsServicePlugin?.set) {
-      eventsServicePlugin.set(calEvents);
+      eventsServicePlugin.set(appointments);
     }
-  }, [calEvents, eventsServicePlugin]);
+  }, [appointments, eventsServicePlugin]);
 
   return (
     <>

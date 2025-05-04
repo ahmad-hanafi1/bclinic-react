@@ -2,23 +2,32 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "./layout";
 import HomeScreen from "../containers/home/home";
 import LoginScreen from "../containers/login/Login";
-// import other screens...
+import ProtectedRoute from "./ProtectedRoute";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />, // Layout wraps children
+    element: <Layout />,
     children: [
-      { path: "", element: <HomeScreen /> },
-      { path: "calender", element: <HomeScreen /> },
-      // { path: "company/home", element: <CompanyHomeScreen /> },
-      // { path: "company/home/candidate", element: <CandidateScreen /> },
+      {
+        path: "",
+        element: (
+          <ProtectedRoute>
+            <HomeScreen />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "calender",
+        element: (
+          <ProtectedRoute>
+            <HomeScreen />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
-  // Outside layout
   { path: "/login", element: <LoginScreen /> },
-  // { path: "/register", element: <RegisterScreen /> },
-  // { path: "/redirecting", element: <LoadingScreen /> },
 ]);
 
 export default router;

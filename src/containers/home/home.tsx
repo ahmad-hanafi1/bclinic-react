@@ -4,6 +4,7 @@ import Calender from "../../components/calender";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { fetchPatients } from "../../data/features/patient/patientSlice";
 import { fetchDoctors } from "../../data/features/doctor/doctorSlice";
+import { fetchAppointments } from "../../data/features/calender/calenderSlice";
 
 const doctorFilters = [
   { name: "All", value: "all" },
@@ -21,14 +22,17 @@ export default function HomeScreen() {
   const { token } = useAppSelector((state) => state.auth);
   const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
+  const { appointments } = useAppSelector((state) => state.calender);
   console.log("Redux token: ", token);
   console.log("LocalStorage token: ", localStorage.getItem("access_token"));
   console.log("patients: ", patients);
   console.log("doctors: ", doctors);
+  console.log("appointments: ", appointments);
 
   useEffect(() => {
     dispatch(fetchPatients());
     dispatch(fetchDoctors());
+    dispatch(fetchAppointments());
   }, [dispatch]);
 
   // useEffect(() => {

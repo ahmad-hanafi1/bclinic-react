@@ -3,7 +3,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
+  // TextField,
 } from "@mui/material";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -11,14 +11,15 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useForm, Controller } from "react-hook-form";
 import { hideModal } from "../../../data/features/modal/modalSlice";
+import { createEvent } from "../../../data/features/calender/calenderSlice";
 
 interface AppointmentFormInputs {
   date: Date | null;
   startTime: Date | null;
   endTime: Date | null;
-  patientName: string;
-  phoneNumber: string;
-  doctor: string;
+  patient: number;
+  // phoneNumber: string;
+  doctor: number;
 }
 
 const AddAppointmentForm = () => {
@@ -26,19 +27,18 @@ const AddAppointmentForm = () => {
 
   const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
-  const { props, onSubmit } = useAppSelector((state) => state.modal);
+  const { props } = useAppSelector((state) => state.modal);
 
-  const { register, control, handleSubmit, setValue } =
-    useForm<AppointmentFormInputs>({
-      defaultValues: {
-        date: null,
-        startTime: null,
-        endTime: null,
-        patientName: "",
-        phoneNumber: "",
-        doctor: "",
-      },
-    });
+  const { control, handleSubmit, setValue } = useForm<AppointmentFormInputs>({
+    defaultValues: {
+      date: null,
+      startTime: null,
+      endTime: null,
+      patient: 0,
+      doctor: 0,
+      // phoneNumber: null,
+    },
+  });
 
   useEffect(() => {
     const initialDate = dayjs(props?.dateTime as string);
@@ -48,9 +48,18 @@ const AddAppointmentForm = () => {
   }, [props?.dateTime, setValue]);
 
   const submitFunction = (data: AppointmentFormInputs) => {
-    if (onSubmit) {
-      onSubmit(data);
-    }
+    console.log(data);
+    const date = dayjs(data.date).format("YYYY-MM-DD");
+    const startTime = dayjs(data.startTime).format("HH:mm:ss");
+    const endTime = dayjs(data.endTime).format("HH:mm:ss");
+    dispatch(
+      createEvent({
+        appointment_start: date + " " + startTime,
+        appointment_end: date + " " + endTime,
+        patient_id: data?.patient,
+        doctor_id: data?.doctor,
+      })
+    );
     dispatch(hideModal());
   };
 
@@ -109,7 +118,7 @@ const AddAppointmentForm = () => {
       <FormControl fullWidth margin="dense">
         <InputLabel id="doctor-label">Patient</InputLabel>
         <Controller
-          name="patientName"
+          name="patient"
           control={control}
           render={({ field }) => (
             <Select
@@ -119,7 +128,7 @@ const AddAppointmentForm = () => {
               onChange={field.onChange}
             >
               {patients.map((patient) => (
-                <MenuItem key={patient.id} value={patient.name}>
+                <MenuItem key={patient.id} value={patient.id}>
                   {patient.name}
                 </MenuItem>
               ))}
@@ -128,14 +137,14 @@ const AddAppointmentForm = () => {
         />
       </FormControl>
 
-      <TextField
+      {/* <TextField
         required
         margin="dense"
         label="Patient Phone Number"
         fullWidth
         variant="outlined"
         {...register("phoneNumber", { required: true })}
-      />
+      /> */}
 
       <FormControl fullWidth margin="dense">
         <InputLabel id="doctor-label">Doctor</InputLabel>
@@ -150,7 +159,7 @@ const AddAppointmentForm = () => {
               onChange={field.onChange}
             >
               {doctors.map((doctor) => (
-                <MenuItem key={doctor.id} value={doctor.name}>
+                <MenuItem key={doctor.id} value={doctor.id}>
                   {doctor.name}
                 </MenuItem>
               ))}

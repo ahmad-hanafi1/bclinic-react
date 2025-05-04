@@ -75,9 +75,29 @@ const authSlice = createSlice({
     },
     loadTokenFromStorage(state) {
       const token = localStorage.getItem("access_token");
-      if (token) {
+      const issuedAt = parseInt(
+        localStorage.getItem("token_issued_at") || "0",
+        10
+      );
+      const expiresIn = parseInt(
+        localStorage.getItem("token_expires_in") || "0",
+        10
+      );
+
+      const now = Date.now();
+      const isExpired = now > issuedAt + expiresIn * 1000;
+
+      if (token && !isExpired) {
         state.token = token;
+        state.expiresIn = expiresIn;
         state.isAuthenticated = true;
+      } else {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("token_expires_in");
+        localStorage.removeItem("token_issued_at");
+        state.token = null;
+        state.expiresIn = null;
+        state.isAuthenticated = false;
       }
     },
   },
@@ -96,6 +116,14 @@ const authSlice = createSlice({
           state.tokenType = action.payload.token_type;
           state.scope = action.payload.scope;
           state.isAuthenticated = true;
+
+          // Store the token and expiration time in local storage
+          localStorage.setItem("access_token", action.payload.access_token);
+          localStorage.setItem(
+            "token_expires_in",
+            action.payload.expires_in.toString()
+          );
+          localStorage.setItem("token_issued_at", Date.now().toString());
         }
       )
       .addCase(loginUser.rejected, (state, action) => {
@@ -104,6 +132,16 @@ const authSlice = createSlice({
       });
   },
 });
+
+
+export function isTokenExpired(): boolean {
+  const issuedAt = parseInt(localStorage.getItem("token_issued_at") || "0", 10);
+  const expiresIn = parseInt(
+    localStorage.getItem("token_expires_in") || "0",
+    10
+  );
+  return Date.now() > issuedAt + expiresIn * 1000;
+}
 
 export const { logout, loadTokenFromStorage } = authSlice.actions;
 export default authSlice.reducer;
