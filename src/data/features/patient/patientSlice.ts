@@ -55,7 +55,7 @@ export const fetchPatientById = createAsyncThunk<Patient, number>(
       const response = await axiosTokenInstance.get(
         `/api/search_read?model=res.partner&db=network&fields=["name","id","phone"]&domain=[["is_patient","=",true]]&id=${id}`
       );
-      return response.data[0]; 
+      return response.data[0];
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.detail || "Failed to fetch patient"
@@ -72,6 +72,13 @@ export const createPatient = createAsyncThunk(
         `/api/create?model=res.partner&db=network&values={"name":"${patientData.name}","phone":"${patientData.phone}","is_patient":true}`
       );
 
+      const newId = response.data[0];
+
+      return {
+        id: newId,
+        name: patientData.name,
+        phone: patientData.phone,
+      };
       return response.data;
     } catch (err: any) {
       return rejectWithValue(
@@ -125,9 +132,13 @@ const patientSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createPatient.fulfilled, (state) => {
-        state.loading = false;
-      })
+      .addCase(
+        createPatient.fulfilled,
+        (state, action: PayloadAction<Patient>) => {
+          state.loading = false;
+          state.patients.push(action.payload);
+        }
+      )
       .addCase(createPatient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;

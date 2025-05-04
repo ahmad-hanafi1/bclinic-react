@@ -61,7 +61,13 @@ export const createDoctor = createAsyncThunk(
           }),
         })
       );
-      return response.data;
+
+      const newId = response.data[0];
+
+      return {
+        id: newId,
+        name: doctorData.name,
+      };
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.detail || "Failed to create doctor"
@@ -96,9 +102,13 @@ const doctorSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createDoctor.fulfilled, (state) => {
-        state.loading = false;
-      })
+      .addCase(
+        createDoctor.fulfilled,
+        (state, action: PayloadAction<Doctor>) => {
+          state.loading = false;
+          state.doctors.push(action.payload);
+        }
+      )
       .addCase(createDoctor.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
