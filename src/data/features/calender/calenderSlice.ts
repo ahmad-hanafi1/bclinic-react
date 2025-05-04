@@ -39,17 +39,24 @@ const initialState: CalendarState = {
 interface CreateEventInput {
   doctor_id: number;
   patient_id: number;
-  appointment_start: string; 
-  appointment_end: string; 
-
+  appointment_start: string;
+  appointment_end: string;
 }
 
-export const fetchAppointments = createAsyncThunk<CalendarEvent[]>(
+export const fetchAppointments = createAsyncThunk<
+  CalendarEvent[],
+  number | null | undefined
+>(
   "calendar/fetchAppointments",
-  async (_, { rejectWithValue }) => {
+  async (doctorId = null, { rejectWithValue }) => {
     try {
+      const domain =
+        doctorId === null || doctorId === -1
+          ? `[]` 
+          : `[["doctor_id","=",${doctorId}]]`;
+
       const response = await axiosTokenInstance.get(
-        `/api/search_read?db=network&domain=[]&fields=["appointment_start","appointment_end","name","display_name","doctor_id","patient_id","id"]&model=clinic.appointment`
+        `/api/search_read?db=network&domain=${domain}&fields=["appointment_start","appointment_end","name","display_name","doctor_id","patient_id","id"]&model=clinic.appointment`
       );
 
       const transformed = response.data.map(
@@ -89,7 +96,6 @@ export const fetchAppointments = createAsyncThunk<CalendarEvent[]>(
   }
 );
 
-
 export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
   "calendar/createEvent",
   async (eventData, { rejectWithValue }) => {
@@ -100,7 +106,6 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
           patient_id: eventData.patient_id,
           appointment_start: eventData.appointment_start,
           appointment_end: eventData.appointment_end,
-
         }),
       });
 
@@ -108,13 +113,13 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
         `/api/create?model=clinic.appointment&db=network&${query.toString()}`
       );
 
-      const newId = response.data[0]; 
+      const newId = response.data[0];
       const start = dayjs(eventData.appointment_start);
       const end = dayjs(eventData.appointment_end);
 
       return {
         id: newId,
-        title:" placeholder",
+        title: " placeholder",
         start: start.format("YYYY-MM-DD HH:mm"),
         end: end.format("YYYY-MM-DD HH:mm"),
         color: "#a02920",
