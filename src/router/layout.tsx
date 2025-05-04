@@ -8,12 +8,15 @@ import {
   useMediaQuery,
   useTheme,
   styled,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
+import { useAppDispatch } from "../utils/hooks";
+import { showModal } from "../data/features/modal/modalSlice";
 
 const drawerWidth = 240;
 
@@ -39,6 +42,7 @@ const Main = styled("main")<{ isMdUp: boolean; drawerOpen: boolean }>(
 );
 
 const Layout = () => {
+  const dispatch = useAppDispatch();
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [drawerOpen, setDrawerOpen] = useState(isMdUp);
@@ -60,6 +64,42 @@ const Layout = () => {
           </IconButton>
         ) : null}
       </DrawerHeader>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          padding: 1,
+          gap: 2,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={() =>
+            dispatch(
+              showModal({
+                title: "Add a Patient",
+                type: "add-patient",
+              })
+            )
+          }
+        >
+          Add Patient
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() =>
+            dispatch(
+              showModal({
+                title: "Add a Doctor",
+                type: "add-doctor",
+              })
+            )
+          }
+        >
+          Add Doctor
+        </Button>
+      </Box>
     </>
   );
 

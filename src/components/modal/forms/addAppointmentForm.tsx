@@ -23,6 +23,9 @@ interface AppointmentFormInputs {
 
 const AddAppointmentForm = () => {
   const dispatch = useAppDispatch();
+
+  const { patients } = useAppSelector((state) => state.patient);
+  const { doctors } = useAppSelector((state) => state.doctor);
   const { props, onSubmit } = useAppSelector((state) => state.modal);
 
   const { register, control, handleSubmit, setValue } =
@@ -93,7 +96,7 @@ const AddAppointmentForm = () => {
         )}
       />
 
-      <TextField
+      {/* <TextField
         autoFocus
         required
         margin="dense"
@@ -101,7 +104,29 @@ const AddAppointmentForm = () => {
         fullWidth
         variant="outlined"
         {...register("patientName", { required: true })}
-      />
+      /> */}
+
+      <FormControl fullWidth margin="dense">
+        <InputLabel id="doctor-label">Patient</InputLabel>
+        <Controller
+          name="patientName"
+          control={control}
+          render={({ field }) => (
+            <Select
+              labelId="patient-label"
+              label="Patient"
+              value={field.value}
+              onChange={field.onChange}
+            >
+              {patients.map((patient) => (
+                <MenuItem key={patient.id} value={patient.name}>
+                  {patient.name}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
+      </FormControl>
 
       <TextField
         required
@@ -124,11 +149,11 @@ const AddAppointmentForm = () => {
               value={field.value}
               onChange={field.onChange}
             >
-              <MenuItem value={"alice"}>Alice</MenuItem>
-              <MenuItem value={"bob"}>Bob</MenuItem>
-              <MenuItem value={"charlie"}>Charlie</MenuItem>
-              <MenuItem value={"diana"}>Diana</MenuItem>
-              <MenuItem value={"ethan"}>Ethan</MenuItem>
+              {doctors.map((doctor) => (
+                <MenuItem key={doctor.id} value={doctor.name}>
+                  {doctor.name}
+                </MenuItem>
+              ))}
             </Select>
           )}
         />

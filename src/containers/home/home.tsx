@@ -1,6 +1,9 @@
 import { Box, Button, useTheme } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Calender from "../../components/calender";
+import { useAppDispatch, useAppSelector } from "../../utils/hooks";
+import { fetchPatients } from "../../data/features/patient/patientSlice";
+import { fetchDoctors } from "../../data/features/doctor/doctorSlice";
 
 const doctorFilters = [
   { name: "All", value: "all" },
@@ -14,6 +17,35 @@ const doctorFilters = [
 export default function HomeScreen() {
   const [person, setPerson] = useState("all");
   const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const { token } = useAppSelector((state) => state.auth);
+  const { patients } = useAppSelector((state) => state.patient);
+  const { doctors } = useAppSelector((state) => state.doctor);
+  console.log("Redux token: ", token);
+  console.log("LocalStorage token: ", localStorage.getItem("access_token"));
+  console.log("patients: ", patients);
+  console.log("doctors: ", doctors);
+
+  useEffect(() => {
+    dispatch(fetchPatients());
+    dispatch(fetchDoctors());
+  }, [dispatch]);
+
+  // useEffect(() => {
+  //   fetch(
+  //     `/api/search_read?model=res.partner&db=network&fields=["name","id","phone"]&domain=[["is_patient","=",true]]`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/x-www-form-urlencoded",
+  //         Authorization: `Bearer Sewwim3wxOInisl6fXq8pKb9FT3tch`,
+  //       },
+  //     }
+  //   )
+  //     .then((res) => res.json())
+  //     .then((data) => console.log("✅ Success:", data))
+  //     .catch((err) => console.error("❌ Error:", err));
+  // }, []);
 
   return (
     <>
