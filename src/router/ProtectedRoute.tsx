@@ -8,6 +8,7 @@ interface Props {
 
 const ProtectedRoute = ({ children }: Props) => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  console.log("ProtectedRoute: ", isAuthenticated);
 
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };

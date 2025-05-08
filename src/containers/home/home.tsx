@@ -1,4 +1,4 @@
-import { Box, MenuItem, Select } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useEffect } from "react";
 import Calender from "../../components/calender";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
@@ -8,15 +8,11 @@ import { fetchAppointments } from "../../data/features/calender/calenderSlice";
 
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
-  const { token } = useAppSelector((state) => state.auth);
-  const { patients } = useAppSelector((state) => state.patient);
+  // const { token } = useAppSelector((state) => state.auth);
+  // const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
-  const { appointments } = useAppSelector((state) => state.calender);
-  console.log("Redux token: ", token);
-  console.log("LocalStorage token: ", localStorage.getItem("access_token"));
-  console.log("patients: ", patients);
-  console.log("doctors: ", doctors);
-  console.log("appointments: ", appointments);
+  // const { appointments } = useAppSelector((state) => state.calender);
+
 
   useEffect(() => {
     dispatch(fetchPatients());
@@ -46,23 +42,26 @@ export default function HomeScreen() {
             // boxShadow: 1,
           }}
         >
-          <Select
-            labelId="doctor-label"
-            label="Doctor"
-            onChange={(e) => {
-              dispatch(fetchAppointments(Number(e.target.value)));
-            }}
-            defaultValue={-1}
-          >
-            <MenuItem key={0} value={-1}>
-              All
-            </MenuItem>
-            {doctors.map((doctor) => (
-              <MenuItem key={doctor.id} value={doctor.id}>
-                {doctor.name}
+          <FormControl sx={{ width: 200 }} margin="dense">
+            <InputLabel id="doctor-label">Doctor</InputLabel>
+            <Select
+              labelId="doctor-label"
+              label="Doctor"
+              onChange={(e) => {
+                dispatch(fetchAppointments(Number(e.target.value)));
+              }}
+              defaultValue={-1}
+            >
+              <MenuItem key={0} value={-1}>
+                All
               </MenuItem>
-            ))}
-          </Select>
+              {doctors.map((doctor) => (
+                <MenuItem key={doctor.id} value={doctor.id}>
+                  {doctor.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
         <Box>
           <Calender />

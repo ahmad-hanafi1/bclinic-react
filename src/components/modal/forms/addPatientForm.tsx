@@ -29,7 +29,7 @@ const AddPatientForm = () => {
   const submitForm = (data: AddPatientFormInputs) => {
     // Ensure is_patient is always true
     data.is_patient = true;
-    console.log(data);
+   
     dispatch(createPatient(data));
     // if (onSubmit) {
     //   onSubmit(data);

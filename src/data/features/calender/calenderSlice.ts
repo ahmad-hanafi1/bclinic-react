@@ -3,6 +3,30 @@ import axiosTokenInstance from "../../../api/axiosInstance";
 import axios from "axios";
 import dayjs from "dayjs";
 
+const doctorColorPalette = [
+  "#3B82F6",
+  "#6366F1",
+  "#8B5CF6",
+  "#EC4899",
+  "#F59E0B",
+  "#10B981",
+  "#14B8A6",
+  "#F97316",
+  "#EF4444",
+  "#6B7280",
+  "#0EA5E9",
+  "#7C3AED",
+  "#059669",
+  "#D946EF",
+  "#EA580C",
+  "#991B1B",
+];
+
+const getDoctorColor = (doctorId: number): string => {
+  const index = doctorId % doctorColorPalette.length;
+  return doctorColorPalette[index];
+};
+
 interface ApiResponse {
   id: number;
   appointment_start: string;
@@ -37,8 +61,8 @@ const initialState: CalendarState = {
 };
 
 interface CreateEventInput {
-  doctor_id: number;
-  patient_id: number;
+  doctor: {id: number; name: string };
+  patient: {id: number; name: string };
   appointment_start: string;
   appointment_end: string;
 }
@@ -52,7 +76,7 @@ export const fetchAppointments = createAsyncThunk<
     try {
       const domain =
         doctorId === null || doctorId === -1
-          ? `[]` 
+          ? `[]`
           : `[["doctor_id","=",${doctorId}]]`;
 
       const response = await axiosTokenInstance.get(
@@ -71,7 +95,7 @@ export const fetchAppointments = createAsyncThunk<
             title: item.name,
             start: start.format("YYYY-MM-DD HH:mm"),
             end: end.format("YYYY-MM-DD HH:mm"),
-            color: "#a02920",
+            color: getDoctorColor(item.doctor_id?.[0] ?? -1),
             doctor: {
               id: item.doctor_id?.[0] ?? -1,
               name: item.doctor_id?.[1] ?? "Unknown",
@@ -102,8 +126,8 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
     try {
       const query = new URLSearchParams({
         values: JSON.stringify({
-          doctor_id: eventData.doctor_id,
-          patient_id: eventData.patient_id,
+          doctor_id: eventData.doctor.id,
+          patient_id: eventData.patient.id,
           appointment_start: eventData.appointment_start,
           appointment_end: eventData.appointment_end,
         }),
@@ -122,14 +146,14 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
         title: " placeholder",
         start: start.format("YYYY-MM-DD HH:mm"),
         end: end.format("YYYY-MM-DD HH:mm"),
-        color: "#a02920",
+        color: getDoctorColor(eventData.doctor.id),
         doctor: {
-          id: eventData.doctor_id,
-          name: "Unknown", // placeholder – unless you pass it in
+          id: eventData.doctor.id,
+          name: eventData.doctor.name,
         },
         patient: {
-          id: eventData.patient_id,
-          name: "Unknown", // placeholder
+          id: eventData.patient.id,
+          name: eventData.patient.name,
         },
       };
     } catch (err: unknown) {

@@ -17,9 +17,9 @@ interface AppointmentFormInputs {
   date: Date | null;
   startTime: Date | null;
   endTime: Date | null;
-  patient: number;
+  patient: { name: string; id: number };
   // phoneNumber: string;
-  doctor: number;
+  doctor: { name: string; id: number };
 }
 
 const AddAppointmentForm = () => {
@@ -34,8 +34,8 @@ const AddAppointmentForm = () => {
       date: null,
       startTime: null,
       endTime: null,
-      patient: 0,
-      doctor: 0,
+      patient: {},
+      doctor: {},
       // phoneNumber: null,
     },
   });
@@ -48,7 +48,7 @@ const AddAppointmentForm = () => {
   }, [props?.dateTime, setValue]);
 
   const submitFunction = (data: AppointmentFormInputs) => {
-    console.log(data);
+    
     const date = dayjs(data.date).format("YYYY-MM-DD");
     const startTime = dayjs(data.startTime).format("HH:mm:ss");
     const endTime = dayjs(data.endTime).format("HH:mm:ss");
@@ -56,8 +56,8 @@ const AddAppointmentForm = () => {
       createEvent({
         appointment_start: date + " " + startTime,
         appointment_end: date + " " + endTime,
-        patient_id: data?.patient,
-        doctor_id: data?.doctor,
+        patient: data?.patient,
+        doctor: data?.doctor,
       })
     );
     dispatch(hideModal());
@@ -124,8 +124,13 @@ const AddAppointmentForm = () => {
             <Select
               labelId="patient-label"
               label="Patient"
-              value={field.value}
-              onChange={field.onChange}
+              value={field.value.name}
+              onChange={(e) => {
+                const selected = patients.find(
+                  (p) => p.id === Number(e.target.value)
+                );
+                field.onChange(selected || null);
+              }}
             >
               {patients.map((patient) => (
                 <MenuItem key={patient.id} value={patient.id}>
@@ -155,8 +160,13 @@ const AddAppointmentForm = () => {
             <Select
               labelId="doctor-label"
               label="Doctor"
-              value={field.value}
-              onChange={field.onChange}
+              value={field.value.name}
+              onChange={(e) => {
+                const selected = doctors.find(
+                  (d) => d.id === Number(e.target.value)
+                );
+                field.onChange(selected || null);
+              }}
             >
               {doctors.map((doctor) => (
                 <MenuItem key={doctor.id} value={doctor.id}>

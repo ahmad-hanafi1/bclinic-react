@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
   AppBar,
-  Avatar,
+  // Avatar,
   Box,
   Button,
   Grid,
@@ -9,10 +9,10 @@ import {
   Typography,
   Drawer,
   IconButton,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
+  // List,
+  // ListItem,
+  // ListItemButton,
+  // ListItemText,
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -46,7 +46,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
       >
         <CloseIcon />
       </IconButton>
-      <List>
+      {/* <List>
         <ListItem disablePadding>
           <ListItemButton component={NavLink} to="/">
             <ListItemText primary="Find a Job" />
@@ -82,7 +82,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
             <ListItemText primary="Post a Job" />
           </ListItemButton>
         </ListItem>
-      </List>
+      </List> */}
     </Box>
   );
 
@@ -109,7 +109,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
           <Stack direction="row" gap={1} alignItems="center">
             {/* <Avatar variant="rounded" src={logo} /> */}
             <Typography variant="h6" fontWeight="bold">
-              MEDCRUIT
+              B Clinic
             </Typography>
           </Stack>
           {isMediumScreen ? (
@@ -131,10 +131,10 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
             </>
           ) : (
             <Stack direction="row" gap={2}>
-              <Button>Find a Job</Button>
+              {/* <Button>Find a Job</Button>
               <Button>Create Your CV</Button>
               <Button>Get Job Alerts</Button>
-              <Button>Find a Doctor</Button>
+              <Button>Find a Doctor</Button> */}
               <Button component={NavLink} to="/" replace>
                 Login
               </Button>
@@ -146,9 +146,9 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
               >
                 Sign Up
               </Button>
-              <Button variant="contained" sx={{ color: "white" }}>
+              {/* <Button variant="contained" sx={{ color: "white" }}>
                 Post a Job
-              </Button>
+              </Button> */}
             </Stack>
           )}
         </Stack>

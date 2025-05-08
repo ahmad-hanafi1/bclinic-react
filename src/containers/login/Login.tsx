@@ -25,7 +25,7 @@ function LoginScreen() {
   useEffect(() => {
     // If already authenticated, redirect to /home immediately
     if (isAuthenticated) {
-      console.log("token: ", token);
+      console.log("token if authenticated: ", token);
       navigate("/calender", { replace: true });
     } else {
       console.log("first time login");
