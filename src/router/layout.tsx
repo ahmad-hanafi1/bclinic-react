@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAppDispatch } from "../utils/hooks";
 import { showModal } from "../data/features/modal/modalSlice";
+import { logout } from "../domain/stores/AuthStore";
 
 const drawerWidth = 240;
 
@@ -123,6 +124,12 @@ const Layout = () => {
           <Typography variant="h6" noWrap component="div">
             B-Clinic
           </Typography>
+          <Box
+            sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}
+            onClick={() => dispatch(logout())}
+          >
+            <Button variant="contained"> Logout</Button>
+          </Box>
         </Toolbar>
       </AppBar>
 

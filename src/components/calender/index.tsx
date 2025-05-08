@@ -14,6 +14,8 @@ import CustomDateGridEvent from "./CustomDateGridEvent";
 import "@schedule-x/theme-default/dist/index.css";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { showModal } from "../../data/features/modal/modalSlice";
+import { updateEvent } from "../../data/features/calender/calenderSlice";
+import dayjs from "dayjs";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -46,6 +48,15 @@ function Calendar() {
 
       onEventUpdate(updatedEvent) {
         console.log("onEventUpdate", updatedEvent);
+        dispatch(
+          updateEvent({
+            id: Number(updatedEvent.id),
+            appointment_start: dayjs(updatedEvent.start).format(
+              "YYYY-MM-DD HH:mm"
+            ),
+            appointment_end: dayjs(updatedEvent.end).format("YYYY-MM-DD HH:mm"),
+          })
+        );
       },
 
       onEventClick(calendarEvent) {
