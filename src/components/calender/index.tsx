@@ -36,7 +36,9 @@ function Calendar() {
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
     plugins: [createDragAndDropPlugin(15), eventsServicePlugin, eventModal],
+
     weekOptions: {
+      eventOverlap: false,
       gridHeight: 1000,
     },
     dayBoundaries: {

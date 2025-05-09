@@ -103,6 +103,7 @@ const APPOINTMENT_FIELDS = [
 ];
 interface FetchAppointmentsArgs {
   doctorId?: number | null;
+  patientId?: number | null;
   status?: string | null;
 }
 
@@ -111,7 +112,10 @@ export const fetchAppointments = createAsyncThunk<
   FetchAppointmentsArgs
 >(
   "calendar/fetchAppointments",
-  async ({ doctorId = -1, status = "" }, { rejectWithValue, dispatch }) => {
+  async (
+    { doctorId = -1, status = "", patientId = -1 },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
       const domainParts: string[] = [];
 
@@ -119,6 +123,9 @@ export const fetchAppointments = createAsyncThunk<
         domainParts.push(`["doctor_id","=",${doctorId}]`);
       }
 
+      if (patientId !== -1) {
+        domainParts.push(`["patient_id","=",${patientId}]`);
+      }
       if (status !== "") {
         domainParts.push(`["status","=","${status}"]`);
       }

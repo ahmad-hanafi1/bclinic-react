@@ -10,7 +10,7 @@ import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { hideModal } from "../../../data/features/modal/modalSlice";
 import { createEvent } from "../../../data/features/calender/calenderSlice";
 
@@ -33,6 +33,7 @@ const AddAppointmentForm = () => {
   const { doctors } = useAppSelector((state) => state.doctor);
   const { props } = useAppSelector((state) => state.modal);
 
+  
   const { control, handleSubmit, setValue } = useForm<AppointmentFormInputs>({
     defaultValues: {
       name: "",
@@ -47,6 +48,9 @@ const AddAppointmentForm = () => {
       status: "scheduled",
     },
   });
+
+  const startTime = useWatch({ control, name: "startTime" });
+
 
   useEffect(() => {
     const initialDate = dayjs(props?.dateTime as string);
@@ -123,6 +127,7 @@ const AddAppointmentForm = () => {
           control={control}
           render={({ field }) => (
             <TimePicker
+              minTime={startTime || undefined}
               label="End Time"
               {...field}
               slotProps={{
