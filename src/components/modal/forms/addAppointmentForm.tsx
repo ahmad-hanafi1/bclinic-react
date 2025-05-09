@@ -5,14 +5,18 @@ import {
   Select,
   TextField,
   Grid,
+  Box,
 } from "@mui/material";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { hideModal } from "../../../data/features/modal/modalSlice";
-import { createEvent } from "../../../data/features/calender/calenderSlice";
+import {
+  CalendarEvent,
+  createEvent,
+} from "../../../data/features/calender/calenderSlice";
 
 interface AppointmentFormInputs {
   name: string;
@@ -29,11 +33,15 @@ interface AppointmentFormInputs {
 
 const AddAppointmentForm = () => {
   const dispatch = useAppDispatch();
+  const { appointments } = useAppSelector((state) => state.calender);
   const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
   const { props } = useAppSelector((state) => state.modal);
+  const [doctorAppointments, setDoctorAppointments] = useState<CalendarEvent[]>(
+    []
+  );
+  const [formError, setFormError] = useState<string | null>(null);
 
-  
   const { control, handleSubmit, setValue } = useForm<AppointmentFormInputs>({
     defaultValues: {
       name: "",
@@ -49,9 +57,21 @@ const AddAppointmentForm = () => {
     },
   });
 
+  const doctor = useWatch({ control, name: "doctor" });
   const startTime = useWatch({ control, name: "startTime" });
+  const endTime = useWatch({ control, name: "endTime" });
+  const date = useWatch({ control, name: "date" });
+  console.log(doctor);
 
+  useEffect(() => {
+    setDoctorAppointments(
+      appointments.filter((entry) => entry.doctor.id === doctor?.id)
+    );
 
+    return () => {};
+  }, [doctor]);
+
+  console.log(doctor, doctorAppointments);
   useEffect(() => {
     const initialDate = dayjs(props?.dateTime as string);
     setValue("date", initialDate.toDate());
@@ -60,6 +80,7 @@ const AddAppointmentForm = () => {
   }, [props?.dateTime, setValue]);
 
   const submitFunction = (data: AppointmentFormInputs) => {
+    if (formError) return;
     const date = dayjs(data.date).format("YYYY-MM-DD");
     const startTime = dayjs(data.startTime).format("HH:mm:ss");
     const endTime = dayjs(data.endTime).format("HH:mm:ss");
@@ -79,8 +100,41 @@ const AddAppointmentForm = () => {
     dispatch(hideModal());
   };
 
+  useEffect(() => {
+    if (!startTime || !endTime || !date || !doctorAppointments.length) return;
+
+    const newStart = dayjs(
+      `${dayjs(date).format("YYYY-MM-DD")} ${dayjs(startTime).format(
+        "HH:mm:ss"
+      )}`
+    );
+    const newEnd = dayjs(
+      `${dayjs(date).format("YYYY-MM-DD")} ${dayjs(endTime).format("HH:mm:ss")}`
+    );
+
+    const isOverlapping = doctorAppointments.some((appt) => {
+      const apptStart = dayjs(appt.start);
+      const apptEnd = dayjs(appt.end);
+
+      return newStart.isBefore(apptEnd) && newEnd.isAfter(apptStart);
+    });
+
+    if (isOverlapping) {
+      setFormError(
+        "This doctor already has an appointment during the selected time."
+      );
+    } else {
+      setFormError(null);
+    }
+  }, [startTime, endTime, date, doctorAppointments]);
+
   return (
     <form onSubmit={handleSubmit(submitFunction)} id="modal-form">
+      {formError && (
+        <Box sx={{ mb: 2, color: "error.main", fontWeight: 500 }}>
+          {formError}
+        </Box>
+      )}
       <Grid container spacing={2} marginTop={2}>
         <Controller
           name="name"
