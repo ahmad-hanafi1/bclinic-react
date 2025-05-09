@@ -1,45 +1,86 @@
-type props = {
-  calendarEvent: {
-    id: string | number;
-    title: string;
-    start: string;
-    end: string;
-    color: string;
-    // phoneNumber: string;
-    patient: { id: number; name: string };
-    doctor: { id: number; name: string };
-  };
+import dayjs from "dayjs";
+
+type CalendarEvent = {
+  id: number | string;
+  name: string;
+  start: string;
+  end: string;
+  color: string;
+  status: "scheduled" | "delayed" | "checked_in" | "running" | "checked_out";
+  doctor: { id: number; name: string };
+  patient: { id: number; name: string };
 };
 
-export default function CustomTimeGridEvent({ calendarEvent }: props) {
+type Props = {
+  calendarEvent: CalendarEvent;
+};
+
+const statusColors: Record<CalendarEvent["status"], string> = {
+  scheduled: "#3B82F6", // blue
+  delayed: "#F59E0B", // amber
+  checked_in: "#10B981", // green
+  running: "#6366F1", // indigo
+  checked_out: "#6B7280", // gray
+};
+
+export default function CustomTimeGridEvent({ calendarEvent }: Props) {
+  const { start, end, patient, doctor, color, status } = calendarEvent;
+  const title = `${dayjs(start).format("hh:mm A")} - ${dayjs(end).format(
+    "hh:mm A"
+  )}`;
+
   return (
     <div
       style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
+        // position: "absolute",
+        position: "relative",
         height: "100%",
-        background: calendarEvent.color,
-        color: "white",
-        padding: 10,
-        borderRadius: 5,
-        border: "1px solid white",
-        display: "flex",
-        flexDirection: "column",
-        gap: 5,
-        fontSize: "14px",
+        width: "100%",
+        background: "#797d86",
+        color: "#fff",
+        padding: 8,
+        borderRadius: 0,
+        fontSize: 12,
+        overflow: "hidden",
       }}
     >
-      <p>{`Doctor: ${
-        calendarEvent.doctor?.name.charAt(0).toUpperCase() +
-        calendarEvent.doctor?.name.slice(1)
-      }`}</p>
-      <p>{`Patient: ${
-        calendarEvent.patient?.name.charAt(0).toUpperCase() +
-        calendarEvent.patient?.name.slice(1)
-      }`}</p>
-      {/* <p>{`Phone: ${calendarEvent.phoneNumber}`}</p> */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginRight: 25,
+        }}
+      >
+        <p style={{ fontSize: 12, fontWeight: "bold" }}>{title}</p>
+        <p style={{ fontSize: 14 }}>
+          Doctor:
+          <span style={{ fontWeight: "bold", color: color }}>
+            {capitalize(doctor.name)}
+          </span>
+        </p>
+        <p style={{ fontSize: 14 }}>
+          Patient:
+          <span style={{ fontWeight: "bold" }}>{capitalize(patient.name)}</span>
+        </p>{" "}
+        <div
+          style={{
+            position: "absolute",
+            height: "100%",
+            width: "25px",
+            backgroundColor: statusColors[status],
+            right: 0,
+            top: 0,
+          }}
+        />
+      </div>
     </div>
   );
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function truncate(text: string, max = 40): string {
+  return text.length > max ? text.slice(0, max) + "…" : text;
 }
