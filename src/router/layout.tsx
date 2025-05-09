@@ -14,7 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useAppDispatch } from "../utils/hooks";
 import { showModal } from "../data/features/modal/modalSlice";
 import { logout } from "../domain/stores/AuthStore";
@@ -79,7 +79,7 @@ const Layout = () => {
           onClick={() =>
             dispatch(
               showModal({
-                title: "Add a Patient",
+                title: "Add Patient",
                 type: "add-patient",
               })
             )
@@ -92,7 +92,7 @@ const Layout = () => {
           onClick={() =>
             dispatch(
               showModal({
-                title: "Add a Doctor",
+                title: "Add Doctor",
                 type: "add-doctor",
               })
             )
@@ -121,15 +121,43 @@ const Layout = () => {
           >
             <MenuIcon />
           </IconButton>
+
           <Typography variant="h6" noWrap component="div">
             B-Clinic
           </Typography>
-          <Box
-            sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}
+
+          {/* 🔽 Navigation Links */}
+          <Box sx={{ display: "flex", gap: 2, flexGrow: 1, mx: 4 }}>
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-[#1E40AF]" : "text-white"
+                }  text-lg hover:text-[#1E40AF] transition-colors duration-300`
+              }
+            >
+              Calendar
+            </NavLink>
+            <NavLink
+              to="/patients"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-[#1E40AF]" : "text-white"
+                } text-lg hover:text-[#1E40AF] transition-colors duration-300`
+              }
+            >
+              Patients
+            </NavLink>
+          </Box>
+
+          {/* 🔽 Logout Button */}
+          <Button
+            variant="contained"
+            color="secondary"
             onClick={() => dispatch(logout())}
           >
-            <Button variant="contained"> Logout</Button>
-          </Box>
+            Logout
+          </Button>
         </Toolbar>
       </AppBar>
 
