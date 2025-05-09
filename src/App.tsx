@@ -9,8 +9,8 @@ import store from "./data/store/store";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import Modal from "./components/modal";
-import { SnackbarProvider } from "./domain/hooks/SnackbarHook";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import GlobalSnackbar from "./components/snackbar";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -21,12 +21,11 @@ function App() {
     <Provider store={store}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <QueryClientProvider client={queryClient}>
-          <SnackbarProvider>
-            <ThemeProvider theme={muiTheme}>
-              <RouterProvider router={router} />
-              <Modal />
-            </ThemeProvider>
-          </SnackbarProvider>
+          <ThemeProvider theme={muiTheme}>
+            <RouterProvider router={router} />
+            <GlobalSnackbar />
+            <Modal />
+          </ThemeProvider>
         </QueryClientProvider>
       </LocalizationProvider>
     </Provider>

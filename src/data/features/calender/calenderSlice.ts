@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosTokenInstance from "../../../api/axiosInstance";
 import axios from "axios";
 import dayjs from "dayjs";
+import { showSnackbar } from "../snackbar/snackbarSlice";
 
 const doctorColorPalette = [
   "#3B82F6",
@@ -80,7 +81,7 @@ export const fetchAppointments = createAsyncThunk<
   number | null | undefined
 >(
   "calendar/fetchAppointments",
-  async (doctorId = null, { rejectWithValue }) => {
+  async (doctorId = null, { rejectWithValue, dispatch }) => {
     try {
       const domain =
         doctorId === null || doctorId === -1
@@ -118,6 +119,12 @@ export const fetchAppointments = createAsyncThunk<
 
       return transformed;
     } catch (err: unknown) {
+      dispatch(
+        showSnackbar({
+          message: "Failed to load appointments",
+          severity: "error",
+        })
+      );
       if (axios.isAxiosError(err) && err.response) {
         return rejectWithValue(
           err.response.data?.detail || "Failed to fetch appointments"
@@ -130,7 +137,7 @@ export const fetchAppointments = createAsyncThunk<
 
 export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
   "calendar/createEvent",
-  async (eventData, { rejectWithValue }) => {
+  async (eventData, { rejectWithValue, dispatch }) => {
     try {
       const query = new URLSearchParams({
         values: JSON.stringify({
@@ -148,7 +155,12 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
       const newId = response.data[0];
       const start = dayjs(eventData.appointment_start);
       const end = dayjs(eventData.appointment_end);
-
+      dispatch(
+        showSnackbar({
+          message: "Appointment created!",
+          severity: "success",
+        })
+      );
       return {
         id: newId,
         title: " placeholder",
@@ -165,7 +177,19 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
         },
       };
     } catch (err: unknown) {
+      dispatch(
+        showSnackbar({
+          message: "Failed to create appointment",
+          severity: "error",
+        })
+      );
       if (axios.isAxiosError(err) && err.response) {
+        dispatch(
+          showSnackbar({
+            message: "Failed to create appointment",
+            severity: "error",
+          })
+        );
         return rejectWithValue(
           err.response.data?.detail || "Failed to create event"
         );
@@ -182,7 +206,7 @@ export const updateEvent = createAsyncThunk<
   "calendar/updateEvent",
   async (
     { id, doctor_id, patient_id, appointment_start, appointment_end },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const values: Record<string, unknown> = {};
@@ -215,9 +239,18 @@ export const updateEvent = createAsyncThunk<
       if (patient_id !== undefined) {
         changes.patient = { id: patient_id, name: "Updated" }; // Placeholder
       }
-
+      dispatch(
+        showSnackbar({
+          message: "Appointment updated successfully!",
+          severity: "success",
+        })
+      );
       return { id, changes };
     } catch (err: unknown) {
+      dispatch(showSnackbar({
+        message: "Failed to update appointment",
+        severity: "error",
+      }));
       if (axios.isAxiosError(err) && err.response) {
         return rejectWithValue(
           err.response.data?.detail || "Failed to update event"

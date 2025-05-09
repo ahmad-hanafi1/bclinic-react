@@ -35,7 +35,7 @@ function Calendar() {
     selectedDate: today,
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
-    plugins: [createDragAndDropPlugin(60), eventsServicePlugin, eventModal],
+    plugins: [createDragAndDropPlugin(15), eventsServicePlugin, eventModal],
     dayBoundaries: {
       start: "06:00",
       end: "18:00",

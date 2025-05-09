@@ -2,6 +2,7 @@
 // src/features/doctors/doctorSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosTokenInstance from "../../../api/axiosInstance";
+import { showSnackbar } from "../snackbar/snackbarSlice";
 
 // Doctor model
 interface Doctor {
@@ -33,13 +34,16 @@ interface CreateDoctorInput {
 // Fetch all doctors
 export const fetchDoctors = createAsyncThunk<Doctor[]>(
   "doctors/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosTokenInstance.get(
         `/api/search_read?model=res.partner&db=network&fields=["name","id"]&domain=[["is_doctor","=",true]]`
       );
       return response.data;
     } catch (err: any) {
+      dispatch(
+        showSnackbar({ message: "Failed to fetch doctors", severity: "error" })
+      );
       return rejectWithValue(
         err.response?.data?.detail || "Failed to fetch doctors"
       );
@@ -50,7 +54,7 @@ export const fetchDoctors = createAsyncThunk<Doctor[]>(
 // Create a new doctor
 export const createDoctor = createAsyncThunk(
   "doctors/create",
-  async (doctorData: CreateDoctorInput, { rejectWithValue }) => {
+  async (doctorData: CreateDoctorInput, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosTokenInstance.post(
         `/api/create?model=res.partner&db=network&values={"name":"${doctorData.name}","is_patient":true}`,
@@ -63,12 +67,23 @@ export const createDoctor = createAsyncThunk(
       );
 
       const newId = response.data[0];
-
+      dispatch(
+        showSnackbar({
+          message: "Doctor created successfully",
+          severity: "success",
+        })
+      );
       return {
         id: newId,
         name: doctorData.name,
       };
     } catch (err: any) {
+      dispatch(
+        showSnackbar({
+          message: "Failed to create doctor",
+          severity: "error",
+        })
+      );
       return rejectWithValue(
         err.response?.data?.detail || "Failed to create doctor"
       );

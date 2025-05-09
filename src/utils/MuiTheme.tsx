@@ -21,10 +21,10 @@ const muiTheme = createTheme({
       dark: "#0F766E",
     },
     info: {
-      main: "#38BDF8", 
+      main: "#38BDF8",
     },
     error: {
-      main: "#EF4444", 
+      main: "#EF4444",
     },
     warning: {
       main: "#F59E0B",
@@ -33,7 +33,7 @@ const muiTheme = createTheme({
       main: "#22C55E",
     },
     background: {
-      default: "#F9FAFB", 
+      default: "#F9FAFB",
       paper: "#FFFFFF",
     },
     text: {
@@ -43,6 +43,26 @@ const muiTheme = createTheme({
     divider: "#E5E7EB",
   },
   components: {
+    MuiTextField: {
+      defaultProps: {
+        size: "small",
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: "8px",
+        },
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiFormControl: {
+      defaultProps: {
+        size: "small",
+      },
+    },
     MuiTypography: {
       styleOverrides: {
         subtitle2: {
@@ -69,7 +89,7 @@ const muiTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "10px",
-          textTransform: "none", 
+          textTransform: "none",
           fontWeight: 500,
         },
       },
@@ -78,13 +98,6 @@ const muiTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: "20px",
-        },
-      },
-    },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          borderRadius: "8px",
         },
       },
     },
