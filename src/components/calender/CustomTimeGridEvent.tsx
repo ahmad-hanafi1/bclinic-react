@@ -32,55 +32,56 @@ export default function CustomTimeGridEvent({ calendarEvent }: Props) {
   return (
     <div
       style={{
-        // position: "absolute",
         position: "relative",
         height: "100%",
         width: "100%",
-        background: "#797d86",
-        color: "#fff",
-        padding: 8,
-        borderRadius: 0,
+        background: "#1F2937", // Tailwind slate-800
+        color: "#F9FAFB", // Tailwind gray-50
+        padding: "0px 12px",
+        borderRadius: 8,
         fontSize: 12,
-        overflow: "hidden",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        gap: 4,
       }}
     >
+      {/* Status Indicator */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          marginRight: 25,
+          position: "absolute",
+          height: "60%",
+          width: "6px",
+          backgroundColor: statusColors[status],
+          right: 6,
+          top: "20%",
+          borderRadius: 4,
         }}
-      >
-        <p style={{ fontSize: 12, fontWeight: "bold" }}>{title}</p>
-        <p style={{ fontSize: 14 }}>
-          Doctor:
-          <span style={{ fontWeight: "bold", color: color }}>
-            {capitalize(doctor.name)}
-          </span>
-        </p>
-        <p style={{ fontSize: 14 }}>
-          Patient:
-          <span style={{ fontWeight: "bold" }}>{capitalize(patient.name)}</span>
-        </p>{" "}
-        <div
-          style={{
-            position: "absolute",
-            height: "100%",
-            width: "25px",
-            backgroundColor: statusColors[status],
-            right: 0,
-            top: 0,
-          }}
-        />
+        title={status.replace("_", " ")}
+      />
+
+      {/* Time */}
+      <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
+
+      {/* Doctor */}
+      <div>
+        <span style={{ fontWeight: 500, opacity: 0.85 }}>Doctor: </span>
+        <span style={{ fontWeight: 600, color: color }}>
+          {capitalize(doctor.name)}
+        </span>
+      </div>
+
+      {/* Patient */}
+      <div>
+        <span style={{ fontWeight: 500, opacity: 0.85 }}>Patient: </span>
+        <span style={{ fontWeight: 600 }}>{capitalize(patient.name)}</span>
       </div>
     </div>
   );
 }
 
+// Helpers
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function truncate(text: string, max = 40): string {
-  return text.length > max ? text.slice(0, max) + "…" : text;
 }

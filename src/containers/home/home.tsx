@@ -1,5 +1,5 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Calender from "../../components/calender";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { fetchPatients } from "../../data/features/patient/patientSlice";
@@ -12,13 +12,17 @@ export default function HomeScreen() {
   // const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
   // const { appointments } = useAppSelector((state) => state.calender);
-
+  const [doctor, setDoctor] = useState(-1);
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     dispatch(fetchPatients());
     dispatch(fetchDoctors());
-    dispatch(fetchAppointments());
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchAppointments({ doctorId: doctor, status }));
+  }, [dispatch, doctor, status]);
 
   return (
     <>
@@ -48,7 +52,7 @@ export default function HomeScreen() {
               labelId="doctor-label"
               label="Doctor"
               onChange={(e) => {
-                dispatch(fetchAppointments(Number(e.target.value)));
+                setDoctor(Number(e.target.value));
               }}
               defaultValue={-1}
             >
@@ -60,6 +64,25 @@ export default function HomeScreen() {
                   {doctor.name}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+          <FormControl sx={{ width: 200 }} margin="dense">
+            <InputLabel id="status-label">Status</InputLabel>
+            <Select
+              labelId="status-label"
+              label="Doctor"
+              onChange={(e) => {
+                if (e.target.value === "all") setStatus("");
+                else setStatus(e.target.value);
+              }}
+              defaultValue={"all"}
+            >
+              <MenuItem value={"all"}>All</MenuItem>
+              <MenuItem value="scheduled">Scheduled</MenuItem>
+              <MenuItem value="delayed">Delayed</MenuItem>
+              <MenuItem value="checked_in">Checked In</MenuItem>
+              <MenuItem value="running">Running</MenuItem>
+              <MenuItem value="checked_out">Checked Out</MenuItem>
             </Select>
           </FormControl>
         </Box>

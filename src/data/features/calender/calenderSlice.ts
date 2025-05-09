@@ -101,18 +101,30 @@ const APPOINTMENT_FIELDS = [
   "patient_id",
   "doctor_id",
 ];
+interface FetchAppointmentsArgs {
+  doctorId?: number | null;
+  status?: string | null;
+}
 
 export const fetchAppointments = createAsyncThunk<
   CalendarEvent[],
-  number | null | undefined
+  FetchAppointmentsArgs
 >(
   "calendar/fetchAppointments",
-  async (doctorId = null, { rejectWithValue, dispatch }) => {
+  async ({ doctorId = -1, status = "" }, { rejectWithValue, dispatch }) => {
     try {
+      const domainParts: string[] = [];
+
+      if (doctorId !== -1) {
+        domainParts.push(`["doctor_id","=",${doctorId}]`);
+      }
+
+      if (status !== "") {
+        domainParts.push(`["status","=","${status}"]`);
+      }
+
       const domain =
-        doctorId === null || doctorId === -1
-          ? `[]`
-          : `[["doctor_id","=",${doctorId}]]`;
+        domainParts.length > 0 ? `[${domainParts.join(",")}]` : `[]`;
 
       const response = await axiosTokenInstance.get(
         `/api/search_read?db=network&domain=${domain}&fields=${JSON.stringify(

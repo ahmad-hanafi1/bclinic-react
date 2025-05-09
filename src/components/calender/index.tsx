@@ -22,7 +22,6 @@ const today = new Date().toISOString().split("T")[0];
 const customComponents = {
   timeGridEvent: CustomTimeGridEvent,
   dateGridEvent: CustomDateGridEvent,
-  
 };
 
 function Calendar() {
@@ -37,6 +36,9 @@ function Calendar() {
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
     plugins: [createDragAndDropPlugin(15), eventsServicePlugin, eventModal],
+    weekOptions: {
+      gridHeight: 1000,
+    },
     dayBoundaries: {
       start: "06:00",
       end: "18:00",
