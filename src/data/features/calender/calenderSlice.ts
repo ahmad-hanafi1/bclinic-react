@@ -36,16 +36,24 @@ interface ApiResponse {
   display_name: string;
   doctor_id: [number, string] | null;
   patient_id: [number, string] | null;
+  method: "online" | "in_person";
+  status: "scheduled" | "delayed" | "checked_in" | "running" | "checked_out";
+  remarks: string;
+  comments: string;
 }
 
 export interface CalendarEvent {
   id: number;
-  title: string;
+  name: string;
   start: string;
   end: string;
   color: string;
   doctor: { id: number; name: string };
-  patient: { id: number; name: string };
+  patient: { name: string; id: number };
+  method: "online" | "in_person";
+  status: "scheduled" | "delayed" | "checked_in" | "running" | "checked_out";
+  remarks: string;
+  comments: string;
 }
 
 // Slice state
@@ -62,10 +70,15 @@ const initialState: CalendarState = {
 };
 
 interface CreateEventInput {
-  doctor: { id: number; name: string };
-  patient: { id: number; name: string };
+  name: string;
   appointment_start: string;
   appointment_end: string;
+  doctor: { id: number; name: string };
+  patient: { id: number; name: string };
+  method: "online" | "in_person";
+  status: "scheduled" | "delayed" | "checked_in" | "running" | "checked_out";
+  remarks: string;
+  comments: string;
 }
 
 interface UpdateEventInput {
@@ -75,6 +88,19 @@ interface UpdateEventInput {
   appointment_start?: string;
   appointment_end?: string;
 }
+
+const APPOINTMENT_FIELDS = [
+  "name",
+  "id",
+  "status",
+  "appointment_start",
+  "appointment_end",
+  "comments",
+  "remarks",
+  "method",
+  "patient_id",
+  "doctor_id",
+];
 
 export const fetchAppointments = createAsyncThunk<
   CalendarEvent[],
@@ -89,7 +115,9 @@ export const fetchAppointments = createAsyncThunk<
           : `[["doctor_id","=",${doctorId}]]`;
 
       const response = await axiosTokenInstance.get(
-        `/api/search_read?db=network&domain=${domain}&fields=["appointment_start","appointment_end","name","display_name","doctor_id","patient_id","id"]&model=clinic.appointment`
+        `/api/search_read?db=network&domain=${domain}&fields=${JSON.stringify(
+          APPOINTMENT_FIELDS
+        )}&model=clinic.appointment`
       );
 
       const transformed = response.data.map(
@@ -101,10 +129,14 @@ export const fetchAppointments = createAsyncThunk<
 
           return {
             id: item.id,
-            title: item.name,
+            name: item.name,
             start: start.format("YYYY-MM-DD HH:mm"),
             end: end.format("YYYY-MM-DD HH:mm"),
             color: getDoctorColor(item.doctor_id?.[0] ?? -1),
+            method: item.method,
+            status: item.status,
+            remarks: item.remarks,
+            comments: item.comments,
             doctor: {
               id: item.doctor_id?.[0] ?? -1,
               name: item.doctor_id?.[1] ?? "Unknown",
@@ -139,13 +171,20 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
   "calendar/createEvent",
   async (eventData, { rejectWithValue, dispatch }) => {
     try {
+      const values = {
+        name: eventData.name,
+        appointment_start: eventData.appointment_start,
+        appointment_end: eventData.appointment_end,
+        doctor_id: eventData.doctor.id,
+        patient_id: eventData.patient.id,
+        method: eventData.method,
+        status: eventData.status,
+        remarks: eventData.remarks,
+        comments: eventData.comments,
+      };
+
       const query = new URLSearchParams({
-        values: JSON.stringify({
-          doctor_id: eventData.doctor.id,
-          patient_id: eventData.patient.id,
-          appointment_start: eventData.appointment_start,
-          appointment_end: eventData.appointment_end,
-        }),
+        values: JSON.stringify(values),
       });
 
       const response = await axiosTokenInstance.post(
@@ -163,18 +202,17 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
       );
       return {
         id: newId,
-        title: " placeholder",
+        name: eventData.name,
+        title: eventData.name,
         start: start.format("YYYY-MM-DD HH:mm"),
         end: end.format("YYYY-MM-DD HH:mm"),
         color: getDoctorColor(eventData.doctor.id),
-        doctor: {
-          id: eventData.doctor.id,
-          name: eventData.doctor.name,
-        },
-        patient: {
-          id: eventData.patient.id,
-          name: eventData.patient.name,
-        },
+        doctor: eventData.doctor,
+        patient: eventData.patient,
+        method: eventData.method,
+        status: eventData.status,
+        remarks: eventData.remarks,
+        comments: eventData.comments,
       };
     } catch (err: unknown) {
       dispatch(
@@ -247,10 +285,12 @@ export const updateEvent = createAsyncThunk<
       );
       return { id, changes };
     } catch (err: unknown) {
-      dispatch(showSnackbar({
-        message: "Failed to update appointment",
-        severity: "error",
-      }));
+      dispatch(
+        showSnackbar({
+          message: "Failed to update appointment",
+          severity: "error",
+        })
+      );
       if (axios.isAxiosError(err) && err.response) {
         return rejectWithValue(
           err.response.data?.detail || "Failed to update event"

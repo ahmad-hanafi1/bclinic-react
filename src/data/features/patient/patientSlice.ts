@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosTokenInstance from "../../../api/axiosInstance";
 import { showSnackbar } from "../snackbar/snackbarSlice";
 
-interface Patient {
+export interface Patient {
   id: number;
   name: string;
   phone: string | false;
@@ -122,7 +122,9 @@ export const fetchPatients = createAsyncThunk<Patient[]>(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const response = await axiosTokenInstance.get(
-        `/api/search_read?model=res.partner&db=network&fields=${PATIENT_FIELDS}&domain=${PATIENT_DOMAIN}`
+        `/api/search_read?model=res.partner&db=network&fields=${JSON.stringify(
+          PATIENT_FIELDS
+        )}&domain=${JSON.stringify(PATIENT_DOMAIN)}`
       );
       return response.data;
     } catch (err: any) {

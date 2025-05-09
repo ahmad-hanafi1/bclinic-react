@@ -22,6 +22,7 @@ const today = new Date().toISOString().split("T")[0];
 const customComponents = {
   timeGridEvent: CustomTimeGridEvent,
   dateGridEvent: CustomDateGridEvent,
+  
 };
 
 function Calendar() {
@@ -29,7 +30,7 @@ function Calendar() {
   const eventModal = createEventModalPlugin();
   const { appointments } = useAppSelector((state) => state.calender);
   const dispatch = useAppDispatch();
-
+  console.log(appointments);
   const calendar = useCalendarApp({
     locale: "en-US",
     selectedDate: today,
