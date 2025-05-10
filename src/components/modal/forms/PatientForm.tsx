@@ -15,13 +15,12 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { hideModal } from "../../../data/features/modal/modalSlice";
-import { createPatient } from "../../../data/features/patient/patientSlice";
-import { DatePicker } from "@mui/x-date-pickers";
-import { useEffect } from "react";
 import { fetchNationalities } from "../../../data/features/nationality/nationalitySlice";
+import { useEffect } from "react";
+import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 
-interface CreatePatientInput {
+export interface CreatePatientInput {
   name: string;
   phone: string;
   gender: string;
@@ -42,9 +41,12 @@ interface CreatePatientInput {
   uid?: string;
 }
 
-const AddPatientForm = () => {
+const PatientForm = () => {
   const dispatch = useAppDispatch();
   const { nationalities } = useAppSelector((state) => state.nationality);
+  const { onSubmit, props } = useAppSelector((state) => state.modal);
+
+  const patient = props?.patient as Partial<CreatePatientInput> | undefined;
 
   const {
     register,
@@ -53,33 +55,38 @@ const AddPatientForm = () => {
     formState: { errors },
   } = useForm<CreatePatientInput>({
     defaultValues: {
-      name: "",
-      phone: "",
-      gender: "",
-      date_of_birth: "",
+      name: patient?.name || "",
+      phone: patient?.phone || "",
+      gender: patient?.gender || "",
+      date_of_birth: patient?.date_of_birth || "",
       is_patient: true,
+      nationality: patient?.nationality || { name: "", id: 0 },
 
-      nationality: { name: "", id: 0 },
-      referral: "",
-      is_vip: false,
-      registration_date: "",
-      name_arabic: "",
-      whatsapp: "",
-      emergency_contact_person: "",
-      emergency_contact_no: "",
-      father_name: "",
-      mother_name: "",
-      border_number: "",
-      uid: "",
+      referral: patient?.referral || "",
+      is_vip: patient?.is_vip || false,
+      registration_date: patient?.registration_date || "",
+      name_arabic: patient?.name_arabic || "",
+      whatsapp: patient?.whatsapp || "",
+      emergency_contact_person: patient?.emergency_contact_person || "",
+      emergency_contact_no: patient?.emergency_contact_no || "",
+      father_name: patient?.father_name || "",
+      mother_name: patient?.mother_name || "",
+      border_number: patient?.border_number || "",
+      uid: patient?.uid || "",
     },
   });
+
   const submitForm = (data: CreatePatientInput) => {
     data.is_patient = true;
-    data.registration_date = dayjs().format("YYYY-MM-DD");
-   
-    dispatch(createPatient(data));
+    if (!patient) {
+      data.registration_date = dayjs().format("YYYY-MM-DD");
+    }
+
+    if (onSubmit) onSubmit(data);
     dispatch(hideModal());
   };
+
+  
 
   useEffect(() => {
     dispatch(fetchNationalities());
@@ -87,7 +94,6 @@ const AddPatientForm = () => {
 
   return (
     <form onSubmit={handleSubmit(submitForm)} id="modal-form">
-      {/* === Main Information Section === */}
       <Typography variant="h6" gutterBottom>
         Main Information
       </Typography>
@@ -153,12 +159,11 @@ const AddPatientForm = () => {
                 labelId="nationality-label"
                 id="nationality"
                 label="Nationality"
-                value={field.value.id}
+                value={field.value?.id || ""}
                 onChange={(e) => {
                   const selected = nationalities.find(
                     (p) => p.id === Number(e.target.value)
                   );
-                  console.log(selected);
                   field.onChange(selected || null);
                 }}
               >
@@ -196,32 +201,12 @@ const AddPatientForm = () => {
         />
       </Box>
 
-      {/* === Other Details Section === */}
       <Typography variant="h6" sx={{ mt: 4 }} gutterBottom>
         Other Details
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
       <Grid container spacing={2} flexWrap="wrap">
-        {/* <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <Controller
-            name="registration_date"
-            control={control}
-            render={({ field }) => (
-              <DatePicker
-                label="Registration Date"
-                {...field}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    size: "small",
-                  },
-                }}
-              />
-            )}
-          />
-        </Box> */}
-
         <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
           <TextField
             label="Name (Arabic)"
@@ -307,4 +292,4 @@ const AddPatientForm = () => {
   );
 };
 
-export default AddPatientForm;
+export default PatientForm;

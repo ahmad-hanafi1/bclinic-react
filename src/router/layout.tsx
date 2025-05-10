@@ -18,6 +18,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAppDispatch } from "../utils/hooks";
 import { showModal } from "../data/features/modal/modalSlice";
 import { logout } from "../domain/stores/AuthStore";
+import { createPatient } from "../data/features/patient/patientSlice";
 
 const drawerWidth = 240;
 
@@ -80,7 +81,8 @@ const Layout = () => {
             dispatch(
               showModal({
                 title: "Add Patient",
-                type: "add-patient",
+                type: "patient",
+                onSubmit: (data) => dispatch(createPatient(data)),
               })
             )
           }
@@ -93,7 +95,7 @@ const Layout = () => {
             dispatch(
               showModal({
                 title: "Add Doctor",
-                type: "add-doctor",
+                type: "doctor",
               })
             )
           }

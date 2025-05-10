@@ -2,32 +2,26 @@ import { Card, CardContent, IconButton, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import {
+  Patient,
+  updatePatient,
+} from "../../data/features/patient/patientSlice";
+import { showModal } from "../../data/features/modal/modalSlice";
+import { useAppDispatch } from "../../utils/hooks";
 
-interface PatientCardProps {
-  id: number;
-  name: string;
-  phone: string;
-  date_of_birth: string;
-  gender: string;
-}
-
-export default function PatientCard({
-  name,
-  phone,
-  date_of_birth,
-  id,
-  gender,
-}: PatientCardProps) {
+export default function PatientCard({ patient }: { patient: Patient }) {
   const navigate = useNavigate();
-  const age = dayjs().diff(dayjs(date_of_birth), "year");
+  const age = dayjs().diff(dayjs(patient.date_of_birth), "year");
+  const dispatch = useAppDispatch();
   return (
     <Card
-      onClick={() => navigate(`/patients/${id}`)}
+      onClick={() => navigate(`/patients/${patient.id}`)}
       sx={{
         height: 180,
         width: "100%",
         minWidth: 250,
-        maxWidth: 250,
+        flexBasis: 250,
+        flexGrow: 1,
         borderRadius: 3,
         boxShadow: 3,
         transition: "transform 0.2s",
@@ -45,6 +39,15 @@ export default function PatientCard({
         size="small"
         onClick={(e) => {
           e.stopPropagation();
+          dispatch(
+            showModal({
+              title: "Edit Patient",
+              type: "patient",
+              props: { patient: patient },
+              onSubmit: (data) =>
+                dispatch(updatePatient({ id: patient.id, values: data })),
+            })
+          );
         }}
         sx={{
           position: "absolute",
@@ -59,11 +62,11 @@ export default function PatientCard({
 
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          {name}
+          {patient.name}
         </Typography>
         <Typography variant="body1">Age: {age}</Typography>
-        <Typography variant="body1">gender: {gender}</Typography>
-        <Typography variant="body1">Phone: {phone}</Typography>
+        <Typography variant="body1">gender: {patient.gender}</Typography>
+        <Typography variant="body1">Phone: {patient.phone}</Typography>
       </CardContent>
     </Card>
   );

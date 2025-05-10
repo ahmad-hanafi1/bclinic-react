@@ -81,8 +81,8 @@ function Calendar() {
         // setDialogOpen(true);
         dispatch(
           showModal({
-            title: "Create an Appointment",
-            type: "add-appointment",
+            title: "Create Appointment",
+            type: "appointment",
             props: { dateTime: dateTime },
           })
         );

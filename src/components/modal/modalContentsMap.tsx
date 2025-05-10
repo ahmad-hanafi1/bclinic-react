@@ -1,16 +1,14 @@
-import AddAppointmentForm from "./forms/addAppointmentForm";
-import AddDoctorForm from "./forms/addDoctorForm";
-import AddPatientForm from "./forms/addPatientForm";
+import AppointmentForm from "./forms/AppointmentForm";
+import DoctorForm from "./forms/DoctorForm";
+import PatientForm from "./forms/PatientForm";
 
 const modalContentMap: Record<
   string,
   React.ComponentType<{ props?: Record<string, unknown> }>
 > = {
-  "add-appointment": AddAppointmentForm,
-  "add-patient": AddPatientForm,
-  "add-doctor": AddDoctorForm,
-
+  appointment: AppointmentForm,
+  patient: PatientForm,
+  doctor: DoctorForm,
 };
-
 
 export default modalContentMap;

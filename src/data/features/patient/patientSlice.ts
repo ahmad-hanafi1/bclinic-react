@@ -223,9 +223,56 @@ export const createPatient = createAsyncThunk(
   }
 );
 
-// TODO: Implement the following in the future
-// export const updatePatient = createAsyncThunk<Patient, Patient>(...)
-// export const deletePatient = createAsyncThunk<number, number>(...)
+export const updatePatient = createAsyncThunk<
+  Patient,
+  { id: number; values: Partial<CreatePatientInput> }
+>("patients/update", async ({ id, values }, { rejectWithValue, dispatch }) => {
+  try {
+    const payload: Record<string, any> = {
+      ...values,
+      ...(values.nationality && {
+        nationality_id: values.nationality.id,
+      }),
+    };
+
+    // Remove nested `nationality` to avoid sending it directly
+    delete payload.nationality;
+
+    const query = new URLSearchParams({
+      values: JSON.stringify(payload),
+    });
+
+    await axiosTokenInstance.put(
+      `/api/write?model=res.partner&db=network&ids=[${id}]&${query.toString()}`
+    );
+
+    dispatch(
+      showSnackbar({
+        message: "Patient updated successfully",
+        severity: "success",
+      })
+    );
+
+    return {
+      id,
+      ...payload,
+      is_patient: true,
+      nationality_id: values.nationality
+        ? [values.nationality.id, values.nationality.name]
+        : [0, ""],
+    } as Patient;
+  } catch (err: any) {
+    dispatch(
+      showSnackbar({
+        message: "Failed to update patient",
+        severity: "error",
+      })
+    );
+    return rejectWithValue(
+      err.response?.data?.detail || "Failed to update patient"
+    );
+  }
+});
 
 const patientSlice = createSlice({
   name: "patients",
@@ -275,6 +322,26 @@ const patientSlice = createSlice({
         }
       )
       .addCase(createPatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updatePatient.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        updatePatient.fulfilled,
+        (state, action: PayloadAction<Patient>) => {
+          state.loading = false;
+          const index = state.patients.findIndex(
+            (p) => p.id === action.payload.id
+          );
+          if (index !== -1) {
+            state.patients[index] = action.payload;
+          }
+        }
+      )
+      .addCase(updatePatient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

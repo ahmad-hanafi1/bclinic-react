@@ -17,19 +17,13 @@ export default function PatientsScreen() {
       <Typography variant="h5" gutterBottom>
         Patients
       </Typography>
-      <Grid container spacing={3}>
+      <div className="flex flex-wrap gap-7">
         {patients.map((patient) => (
-          <Grid item xs={12} sm={6} md={4}>
-            <PatientCard
-              id={patient.id}
-              name={patient.name}
-              phone={patient.phone as string}
-              date_of_birth={patient.date_of_birth}
-              gender={patient.gender}
-            />
-          </Grid>
+          <PatientCard
+            patient={patient}
+          />
         ))}
-      </Grid>
+      </div>
     </Box>
   );
 }

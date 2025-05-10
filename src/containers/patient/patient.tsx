@@ -13,7 +13,10 @@ import {
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
-import { fetchPatients } from "../../data/features/patient/patientSlice";
+import {
+  fetchPatients,
+  updatePatient,
+} from "../../data/features/patient/patientSlice";
 import { fetchAppointments } from "../../data/features/calender/calenderSlice";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
@@ -21,6 +24,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
 import IconButton from "@mui/material/IconButton";
+import { showModal } from "../../data/features/modal/modalSlice";
 
 export default function PatientScreen() {
   const { id } = useParams<{ id: string }>();
@@ -64,7 +68,15 @@ export default function PatientScreen() {
             "&:hover": { backgroundColor: "#f5f5f5" },
           }}
           onClick={() => {
-            // TODO: trigger your edit modal or navigation
+            dispatch(
+              showModal({
+                title: "Edit Patient",
+                type: "patient",
+                props: { patient: patient },
+                onSubmit: (data) =>
+                  dispatch(updatePatient({ id: patient.id, values: data })),
+              })
+            );
             console.log("Edit patient profile", patient.id);
           }}
         >
@@ -154,11 +166,11 @@ export default function PatientScreen() {
         Appointments
       </Typography>
       <Stack spacing={2}>
-        {appointments.map((appt) => (
+        {appointments.map((entry) => (
           <Card
-            key={appt.id}
+            key={entry.id}
             sx={{
-              borderLeft: `6px solid ${appt.color}`,
+              borderLeft: `6px solid ${entry.color}`,
               p: 1,
               boxShadow: 2,
               borderRadius: 2,
@@ -166,7 +178,7 @@ export default function PatientScreen() {
           >
             <CardContent>
               <Typography variant="subtitle1" fontWeight="bold">
-                {appt.name}
+                {entry.name}
               </Typography>
 
               <Grid container spacing={1} sx={{ mt: 1 }}>
@@ -176,9 +188,9 @@ export default function PatientScreen() {
                     sx={{ display: "flex", alignItems: "center" }}
                   >
                     <AccessTimeIcon fontSize="small" sx={{ mr: 0.5 }} />
-                    {dayjs(appt.start).format("YYYY/MM/DD")} -{" "}
-                    {dayjs(appt.start).format("HH:mm A")} →{" "}
-                    {dayjs(appt.end).format("HH:mm A")}
+                    {dayjs(entry.start).format("YYYY/MM/DD")} -{" "}
+                    {dayjs(entry.start).format("HH:mm A")} →{" "}
+                    {dayjs(entry.end).format("HH:mm A")}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -187,22 +199,22 @@ export default function PatientScreen() {
                     sx={{ display: "flex", alignItems: "center" }}
                   >
                     <PersonIcon fontSize="small" sx={{ mr: 0.5 }} />
-                    Doctor: {appt.doctor?.name || "Unknown"}
+                    Doctor: {entry.doctor?.name || "Unknown"}
                   </Typography>
                 </Grid>
               </Grid>
 
               <Box mt={2}>
                 <Chip
-                  label={appt.status}
+                  label={entry.status}
                   size="small"
                   sx={{
                     backgroundColor:
-                      appt.status === "scheduled"
+                      entry.status === "scheduled"
                         ? "primary.main"
-                        : appt.status === "checked_out"
+                        : entry.status === "checked_out"
                         ? "success.main"
-                        : appt.status === "delayed"
+                        : entry.status === "delayed"
                         ? "warning.main"
                         : "grey.500",
                     color: "white",
