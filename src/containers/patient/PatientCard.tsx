@@ -8,6 +8,7 @@ interface PatientCardProps {
   name: string;
   phone: string;
   date_of_birth: string;
+  gender: string;
 }
 
 export default function PatientCard({
@@ -15,6 +16,7 @@ export default function PatientCard({
   phone,
   date_of_birth,
   id,
+  gender,
 }: PatientCardProps) {
   const navigate = useNavigate();
   const age = dayjs().diff(dayjs(date_of_birth), "year");
@@ -25,6 +27,7 @@ export default function PatientCard({
         height: 180,
         width: "100%",
         minWidth: 250,
+        maxWidth: 250,
         borderRadius: 3,
         boxShadow: 3,
         transition: "transform 0.2s",
@@ -59,7 +62,7 @@ export default function PatientCard({
           {name}
         </Typography>
         <Typography variant="body1">Age: {age}</Typography>
-        <Typography variant="body1">Phone: {phone}</Typography>
+        <Typography variant="body1">gender: {gender}</Typography>
         <Typography variant="body1">Phone: {phone}</Typography>
       </CardContent>
     </Card>

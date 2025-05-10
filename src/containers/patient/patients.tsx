@@ -25,6 +25,7 @@ export default function PatientsScreen() {
               name={patient.name}
               phone={patient.phone as string}
               date_of_birth={patient.date_of_birth}
+              gender={patient.gender}
             />
           </Grid>
         ))}

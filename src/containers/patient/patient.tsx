@@ -18,7 +18,9 @@ import { fetchAppointments } from "../../data/features/calender/calenderSlice";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
+import IconButton from "@mui/material/IconButton";
 
 export default function PatientScreen() {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +49,27 @@ export default function PatientScreen() {
   return (
     <Box sx={{ p: 3 }}>
       {/* Patient Info */}
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 4 }}>
+      <Paper
+        elevation={3}
+        sx={{ p: 3, borderRadius: 2, mb: 4, position: "relative" }}
+      >
+        <IconButton
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            backgroundColor: "white",
+            boxShadow: 1,
+            "&:hover": { backgroundColor: "#f5f5f5" },
+          }}
+          onClick={() => {
+            // TODO: trigger your edit modal or navigation
+            console.log("Edit patient profile", patient.id);
+          }}
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
         <Box display="flex" alignItems="center" gap={1} mb={2}>
           <Typography variant="h5">{patient.name}</Typography>
           {patient.is_vip && (
@@ -154,8 +176,9 @@ export default function PatientScreen() {
                     sx={{ display: "flex", alignItems: "center" }}
                   >
                     <AccessTimeIcon fontSize="small" sx={{ mr: 0.5 }} />
-                    {dayjs(appt.start).format("YYYY/MM/DD HH:mm")} →{" "}
-                    {dayjs(appt.end).format("YYYY/MM/DD HH:mm")}
+                    {dayjs(appt.start).format("YYYY/MM/DD")} -{" "}
+                    {dayjs(appt.start).format("HH:mm A")} →{" "}
+                    {dayjs(appt.end).format("HH:mm A")}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
