@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "./layout";
+import Layout from "./Layout";
 import HomeScreen from "../containers/home/home";
 import LoginScreen from "../containers/login/Login";
 import ProtectedRoute from "./ProtectedRoute";
@@ -15,7 +15,7 @@ const router = createBrowserRouter([
         path: "",
         element: (
           <ProtectedRoute>
-            <HomeScreen />
+            <></>
           </ProtectedRoute>
         ),
       },
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
         path: "patients/:id",
         element: (
           <ProtectedRoute>
-            <PatientScreen />
+            <PatientScreen key={location.pathname} />
           </ProtectedRoute>
         ),
       },

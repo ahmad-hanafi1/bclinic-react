@@ -133,14 +133,14 @@ const Layout = () => {
           {/* 🔽 Navigation Links */}
           <Box sx={{ display: "flex", gap: 2, flexGrow: 1, mx: 4 }}>
             <NavLink
-              to="/"
+              to="/calender"
               className={({ isActive }) =>
                 `${
                   isActive ? "text-[#1E40AF]" : "text-white"
                 }  text-lg hover:text-[#1E40AF] transition-colors duration-300`
               }
             >
-              Calendar
+              Calender
             </NavLink>
             <NavLink
               to="/patients"
