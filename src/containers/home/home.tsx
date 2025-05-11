@@ -11,10 +11,11 @@ export default function HomeScreen() {
   // const { token } = useAppSelector((state) => state.auth);
   // const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
-  // const { appointments } = useAppSelector((state) => state.calender);
+  const { appointments } = useAppSelector((state) => state.calender);
   const [doctor, setDoctor] = useState(-1);
   const [status, setStatus] = useState("");
 
+  console.log(appointments);
   useEffect(() => {
     dispatch(fetchPatients());
     dispatch(fetchDoctors());

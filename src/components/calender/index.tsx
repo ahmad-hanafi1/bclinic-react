@@ -6,7 +6,6 @@ import {
   viewMonthAgenda,
   viewMonthGrid,
 } from "@schedule-x/calendar";
-import { createEventModalPlugin } from "@schedule-x/event-modal";
 import { createDragAndDropPlugin } from "@schedule-x/drag-and-drop";
 import { createEventsServicePlugin } from "@schedule-x/events-service";
 import CustomTimeGridEvent from "./CustomTimeGridEvent";
@@ -31,7 +30,6 @@ const customComponents = {
 
 function Calendar() {
   const eventsServicePlugin = useMemo(() => createEventsServicePlugin(), []);
-  const eventModal = createEventModalPlugin();
   const { appointments } = useAppSelector((state) => state.calender);
   const [doctorId, setDoctorId] = useState<number | null>(null);
   const [updatedEventId, setUpdatedEventId] = useState<number | null>(null);
@@ -45,12 +43,11 @@ function Calendar() {
     selectedDate: today,
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
-    plugins: [createDragAndDropPlugin(1), eventsServicePlugin, eventModal],
+    plugins: [createDragAndDropPlugin(5), eventsServicePlugin],
 
     weekOptions: {
       eventOverlap: false,
       gridHeight: 1000,
-     
     },
     dayBoundaries: {
       start: "06:00",
