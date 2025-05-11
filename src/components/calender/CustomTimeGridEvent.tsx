@@ -9,6 +9,9 @@ import {
   // Box,
   Stack,
 } from "@mui/material";
+import { useAppDispatch } from "../../utils/hooks";
+import { showModal } from "../../data/features/modal/modalSlice";
+import { updateEvent } from "../../data/features/calender/calenderSlice";
 
 type CalendarEvent = {
   id: number | string;
@@ -36,6 +39,7 @@ const statusColors: Record<CalendarEvent["status"], string> = {
 };
 
 export default function CustomTimeGridEvent({ calendarEvent }: Props) {
+  const dispatch = useAppDispatch();
   const { start, end, patient, doctor, color, status, name } = calendarEvent;
   const title = `${dayjs(start).format("hh:mm A")} - ${dayjs(end).format(
     "hh:mm A"
@@ -46,6 +50,41 @@ export default function CustomTimeGridEvent({ calendarEvent }: Props) {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
+  };
+
+  const handleEdit = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    e.stopPropagation();
+    dispatch(
+      showModal({
+        title: "Edit Appointment",
+        type: "appointment",
+        onSubmit: (data) => {
+          const dateStr = dayjs(data.date).format("YYYY-MM-DD");
+          const startStr = dayjs(data.startTime).format("HH:mm:ss");
+          const endStr = dayjs(data.endTime).format("HH:mm:ss");
+
+          dispatch(
+            updateEvent({
+              id: Number(calendarEvent.id),
+              values: {
+                name: data.name,
+                appointment_start: `${dateStr} ${startStr}`,
+                appointment_end: `${dateStr} ${endStr}`,
+                method: data.method,
+                status: data.status,
+                remarks: data.remarks,
+                comments: data.comments,
+                doctor: data.doctor,
+                patient: data.patient,
+              },
+            })
+          );
+        },
+        props: {
+          appointment: calendarEvent,
+        },
+      })
+    );
   };
 
   const handleClose = () => setAnchorEl(null);
@@ -71,7 +110,11 @@ export default function CustomTimeGridEvent({ calendarEvent }: Props) {
 
         {/* Optional hover icon */}
         <div className="absolute top-2 right-2 group-hover:opacity-100 opacity-0 transition-opacity duration-200 ease-in-out z-10">
-          <EditIcon fontSize="small" sx={{ color: "#4b5563" }} />
+          <EditIcon
+            fontSize="small"
+            sx={{ color: "#4b5563" }}
+            onClick={handleEdit}
+          />
         </div>
 
         {/* Info */}

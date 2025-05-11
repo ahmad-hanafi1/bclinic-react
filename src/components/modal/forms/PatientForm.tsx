@@ -16,7 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { hideModal } from "../../../data/features/modal/modalSlice";
 import { fetchNationalities } from "../../../data/features/nationality/nationalitySlice";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 
@@ -24,9 +24,9 @@ export interface CreatePatientInput {
   name: string;
   phone: string;
   gender: string;
-  date_of_birth: string;
+  date_of_birth: Date | null;
   is_patient: boolean;
-  nationality: { name: string; id: number };
+  nationality: { name: string; id: number } | null;
 
   referral?: string;
   is_vip?: boolean;
@@ -48,6 +48,19 @@ const PatientForm = () => {
 
   const patient = props?.patient as Partial<CreatePatientInput> | undefined;
 
+  const nationalityDefault = useMemo(() => {
+    if (
+      !patient?.nationality &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      Array.isArray((patient as any)?.nationality_id)
+    ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const [id, name] = (patient as any).nationality_id;
+      return { id: Number(id), name: String(name) };
+    }
+    return patient?.nationality || null;
+  }, [patient]);
+
   const {
     register,
     handleSubmit,
@@ -58,10 +71,11 @@ const PatientForm = () => {
       name: patient?.name || "",
       phone: patient?.phone || "",
       gender: patient?.gender || "",
-      date_of_birth: patient?.date_of_birth || "",
+      date_of_birth: patient?.date_of_birth
+        ? new Date(patient.date_of_birth)
+        : null,
       is_patient: true,
-      nationality: patient?.nationality || { name: "", id: 0 },
-
+      nationality: nationalityDefault,
       referral: patient?.referral || "",
       is_vip: patient?.is_vip || false,
       registration_date: patient?.registration_date || "",
@@ -78,6 +92,9 @@ const PatientForm = () => {
 
   const submitForm = (data: CreatePatientInput) => {
     data.is_patient = true;
+    data.date_of_birth = dayjs(data.date_of_birth).format(
+      "YYYY-MM-DD"
+    ) as unknown as Date;
     if (!patient) {
       data.registration_date = dayjs().format("YYYY-MM-DD");
     }
@@ -85,8 +102,6 @@ const PatientForm = () => {
     if (onSubmit) onSubmit(data);
     dispatch(hideModal());
   };
-
-  
 
   useEffect(() => {
     dispatch(fetchNationalities());
@@ -119,6 +134,7 @@ const PatientForm = () => {
 
         <TextField
           label="Phone"
+          type="number"
           fullWidth
           required
           {...register("phone", { required: true })}
@@ -157,17 +173,16 @@ const PatientForm = () => {
             render={({ field }) => (
               <Select
                 labelId="nationality-label"
-                id="nationality"
                 label="Nationality"
-                value={field.value?.id || ""}
+                value={field.value?.id ?? ""}
                 onChange={(e) => {
                   const selected = nationalities.find(
-                    (p) => p.id === Number(e.target.value)
+                    (n) => n.id === Number(e.target.value)
                   );
-                  field.onChange(selected || null);
+                  field.onChange(selected ?? null);
                 }}
               >
-                {nationalities?.map((nation) => (
+                {nationalities.map((nation) => (
                   <MenuItem key={nation.id} value={nation.id}>
                     {nation.name}
                   </MenuItem>
@@ -185,7 +200,8 @@ const PatientForm = () => {
           render={({ field }) => (
             <DatePicker
               label="Date of Birth"
-              {...field}
+              value={field.value}
+              onChange={(date) => field.onChange(date)}
               slotProps={{
                 textField: {
                   fullWidth: true,
@@ -207,81 +223,33 @@ const PatientForm = () => {
       <Divider sx={{ mb: 2 }} />
 
       <Grid container spacing={2} flexWrap="wrap">
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Name (Arabic)"
-            fullWidth
-            {...register("name_arabic")}
-            size="small"
-          />
-        </Box>
+        {[
+          { name: "name_arabic", label: "Name (Arabic)" },
+          { name: "whatsapp", label: "WhatsApp", type: "number" },
+          { name: "emergency_contact_person", label: "Emergency Contact" },
+          {
+            name: "emergency_contact_no",
+            label: "Emergency Contact No",
+            type: "number",
+          },
+          { name: "father_name", label: "Father Name" },
+          { name: "mother_name", label: "Mother Name" },
+          { name: "border_number", label: "Border Number", type: "number" },
+          { name: "uid", label: "UID", type: "number" },
+          { name: "referral", label: "Referral" },
+        ].map((field) => (
+          <Box key={field.name} sx={{ width: { xs: "100%", md: "45%" } }}>
+            <TextField
+              label={field.label}
+              type={field.type || "text"}
+              fullWidth
+              size="small"
+              {...register(field.name as keyof CreatePatientInput)}
+            />
+          </Box>
+        ))}
 
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="WhatsApp"
-            fullWidth
-            {...register("whatsapp")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Emergency Contact"
-            fullWidth
-            {...register("emergency_contact_person")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Emergency Contact No"
-            fullWidth
-            {...register("emergency_contact_no")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Father Name"
-            fullWidth
-            {...register("father_name")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Mother Name"
-            fullWidth
-            {...register("mother_name")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Border Number"
-            fullWidth
-            {...register("border_number")}
-            size="small"
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField label="UID" fullWidth {...register("uid")} size="small" />
-        </Box>
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
-          <TextField
-            label="Referral"
-            fullWidth
-            {...register("referral")}
-            size="small"
-          />
-        </Box>
-        <Box sx={{ width: { xs: "100%", sm: "100%", md: "45%" } }}>
+        <Box sx={{ width: { xs: "100%", md: "45%" } }}>
           <FormControlLabel
             control={<Checkbox {...register("is_vip")} />}
             label="VIP"
