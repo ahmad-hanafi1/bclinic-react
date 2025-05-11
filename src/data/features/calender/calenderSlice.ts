@@ -5,22 +5,37 @@ import dayjs from "dayjs";
 import { showSnackbar } from "../snackbar/snackbarSlice";
 
 const doctorColorPalette = [
-  "#3B82F6",
-  "#6366F1",
-  "#8B5CF6",
-  "#EC4899",
-  "#F59E0B",
-  "#10B981",
-  "#14B8A6",
-  "#F97316",
-  "#EF4444",
-  "#6B7280",
-  "#0EA5E9",
-  "#7C3AED",
-  "#059669",
-  "#D946EF",
-  "#EA580C",
-  "#991B1B",
+  "#1E3A8A", // dark blue
+  "#2563EB", // blue
+  "#1D4ED8", // deep blue
+  "#4338CA", // indigo
+  "#6D28D9", // violet
+  "#7C3AED", // purple
+  "#8B5CF6", // purple bright
+  "#A21CAF", // fuchsia dark
+  "#DB2777", // pink
+  "#EC4899", // pink bright
+  "#BE185D", // rose dark
+  "#EF4444", // red
+  "#991B1B", // dark red
+  "#B91C1C", // slightly brighter red
+  "#EA580C", // orange deep
+  "#F97316", // orange bright
+  "#F59E0B", // amber
+  "#CA8A04", // amber dark
+  "#65A30D", // lime green
+  "#4D7C0F", // olive
+  "#16A34A", // green
+  "#059669", // emerald
+  "#0F766E", // teal dark
+  "#14B8A6", // teal bright
+  "#0EA5E9", // sky blue
+  "#0284C7", // blue dark
+  "#0369A1", // blue deeper
+  "#6B7280", // gray medium
+  "#374151", // gray dark
+  "#44403C", // warm gray
+  "#7F1D1D", // red brown
 ];
 
 const getDoctorColor = (doctorId: number): string => {

@@ -169,17 +169,21 @@ const Layout = () => {
         variant={isMdUp ? "persistent" : "temporary"}
         anchor="left"
         open={drawerOpen}
-        onClose={() => !isMdUp && setDrawerOpen(false)} // close only if temporary
+        onClose={() => !isMdUp && setDrawerOpen(false)}
         ModalProps={{
-          keepMounted: true, // Better performance on mobile
+          keepMounted: true,
         }}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
+          display: drawerOpen ? "block" : "none", // Add this line
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
-            ...(isMdUp && { top: 64 }), // Shift under AppBar only in persistent mode
+            ...(isMdUp && {
+              top: 64,
+              height: "calc(100% - 64px)", // Add height calculation
+            }),
           },
         }}
       >

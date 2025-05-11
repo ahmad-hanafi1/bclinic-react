@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { updateEvent } from "../../data/features/calender/calenderSlice";
 import { showModal } from "../../data/features/modal/modalSlice";
 import { useAppDispatch } from "../../utils/hooks";
+import { Tooltip } from "@mui/material";
 
 type CalendarEvent = {
   id: number | string;
@@ -36,12 +37,18 @@ export default function CustomTimeGridEvent({ calendarEvent }: Props) {
   return (
     <div className="group relative h-[97%] w-full m-auto border-1 border-gray-100 bg-gray-200 text-gray-200 rounded-lg p-1 pr-[1.1rem] flex flex-col justify-start gap-.5  shadow-md overflow-hidden">
       {/* Status Bar */}
-      <div
-        style={{
-          backgroundColor: statusColors[status],
-        }}
-        className={`absolute h-full w-4 top-0 right-0`}
-      />
+      <Tooltip
+        title={capitalize(status.replace("_", " "))}
+        placement="top"
+        arrow
+      >
+        <div
+          style={{
+            backgroundColor: statusColors[status],
+          }}
+          className={`absolute h-full w-4 top-0 right-0`}
+        />
+      </Tooltip>
       {/* Edit Button (shown on hover) */}
 
       <div className="absolute top-2 right-2 group-hover:opacity-100 opacity-0 transition-opacity duration-200 ease-in-out z-10">
@@ -81,9 +88,7 @@ export default function CustomTimeGridEvent({ calendarEvent }: Props) {
             );
           }}
           fontSize="small"
-          sx={{
-            color: "#4b5563",
-          }}
+          sx={{ color: (theme) => theme.palette.primary.light }}
         />
       </div>
 

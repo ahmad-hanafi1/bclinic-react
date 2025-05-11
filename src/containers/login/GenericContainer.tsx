@@ -146,9 +146,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
               >
                 Sign Up
               </Button>
-              {/* <Button variant="contained" sx={{ color: "white" }}>
-                Post a Job
-              </Button> */}
+
             </Stack>
           )}
         </Stack>
@@ -161,41 +159,6 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
         justifyContent="center"
         alignItems="center"
       >
-        <Grid item xs={12} sm={5}>
-          <Stack direction="column" display="flex" gap={2} textAlign="start">
-            {/* <Avatar
-              variant="rounded"
-              src={logo}
-              sx={{
-                width: 120,
-                height: 120,
-              }}
-            /> */}
-            <Typography variant="h5">Not registered yet!</Typography>
-            <Stack direction="column" gap={1}>
-              <Typography variant="h6">Search & Apply</Typography>
-              <Typography variant="subtitle2">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              </Typography>
-
-              <Typography variant="h6">Upload Your Own Video CV</Typography>
-              <Typography variant="subtitle2">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              </Typography>
-
-              <Typography variant="h6">Job Alerts</Typography>
-              <Typography variant="subtitle2">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              </Typography>
-
-              <Typography variant="h6">Free CV Review</Typography>
-              <Typography variant="subtitle2">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              </Typography>
-            </Stack>
-          </Stack>
-        </Grid>
-
         <Grid item xs={12} sm={5}>
           <Stack direction="column" gap={2} justifyContent="center">
             <Typography textAlign="start" variant="h5">

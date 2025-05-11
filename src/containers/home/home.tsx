@@ -39,7 +39,8 @@ export default function HomeScreen() {
             top: 64, // height of AppBar
             zIndex: 1,
             backgroundColor: "white",
-            p: 2,
+            px: 2,
+            py: 1,
             display: "flex",
             flexDirection: { xs: "column", sm: "row" },
             alignItems: { xs: "stretch", sm: "center" },

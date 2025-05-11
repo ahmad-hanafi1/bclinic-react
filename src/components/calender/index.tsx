@@ -45,11 +45,12 @@ function Calendar() {
     selectedDate: today,
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
-    plugins: [createDragAndDropPlugin(5), eventsServicePlugin, eventModal],
+    plugins: [createDragAndDropPlugin(1), eventsServicePlugin, eventModal],
 
     weekOptions: {
       eventOverlap: false,
       gridHeight: 1000,
+     
     },
     dayBoundaries: {
       start: "06:00",
