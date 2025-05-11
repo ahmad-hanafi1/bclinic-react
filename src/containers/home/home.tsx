@@ -39,14 +39,15 @@ export default function HomeScreen() {
             top: 64, // height of AppBar
             zIndex: 1,
             backgroundColor: "white",
-            padding: 1,
+            p: 2,
             display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "stretch", sm: "center" },
+            gap: 2,
             flexWrap: "wrap",
-            gap: 1.5,
-            // boxShadow: 1,
           }}
         >
-          <FormControl sx={{ width: 200 }} margin="dense">
+          <FormControl sx={{ width: { xs: "100%", sm: 200 } }} margin="dense">
             <InputLabel id="doctor-label">Doctor</InputLabel>
             <Select
               labelId="doctor-label"
@@ -66,18 +67,19 @@ export default function HomeScreen() {
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ width: 200 }} margin="dense">
+
+          <FormControl sx={{ width: { xs: "100%", sm: 200 } }} margin="dense">
             <InputLabel id="status-label">Status</InputLabel>
             <Select
               labelId="status-label"
-              label="Doctor"
+              label="Status"
               onChange={(e) => {
                 if (e.target.value === "all") setStatus("");
                 else setStatus(e.target.value);
               }}
               defaultValue={"all"}
             >
-              <MenuItem value={"all"}>All</MenuItem>
+              <MenuItem value="all">All</MenuItem>
               <MenuItem value="scheduled">Scheduled</MenuItem>
               <MenuItem value="delayed">Delayed</MenuItem>
               <MenuItem value="checked_in">Checked In</MenuItem>
@@ -86,6 +88,7 @@ export default function HomeScreen() {
             </Select>
           </FormControl>
         </Box>
+
         <Box>
           <Calender />
         </Box>

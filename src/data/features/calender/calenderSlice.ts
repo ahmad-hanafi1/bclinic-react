@@ -81,14 +81,6 @@ interface CreateEventInput {
   comments: string;
 }
 
-interface UpdateEventInput {
-  id: number;
-  doctor_id?: number;
-  patient_id?: number;
-  appointment_start?: string;
-  appointment_end?: string;
-}
-
 const APPOINTMENT_FIELDS = [
   "name",
   "id",
@@ -257,52 +249,59 @@ export const createEvent = createAsyncThunk<CalendarEvent, CreateEventInput>(
 );
 
 export const updateEvent = createAsyncThunk<
-  { id: number; changes: Partial<CalendarEvent> },
-  UpdateEventInput
+  CalendarEvent,
+  { id: number; values: Partial<CreateEventInput> }
 >(
   "calendar/updateEvent",
-  async (
-    { id, doctor_id, patient_id, appointment_start, appointment_end },
-    { rejectWithValue, dispatch }
-  ) => {
+  async ({ id, values }, { rejectWithValue, dispatch }) => {
     try {
-      const values: Record<string, unknown> = {};
-      if (doctor_id !== undefined) values.doctor_id = doctor_id;
-      if (patient_id !== undefined) values.patient_id = patient_id;
-      if (appointment_start) values.appointment_start = appointment_start;
-      if (appointment_end) values.appointment_end = appointment_end;
-      console.log("Stringified values: ", JSON.stringify(values));
+      const payload: Record<string, unknown> = {
+        ...values,
+        ...(values.doctor && { doctor_id: values.doctor.id }),
+        ...(values.patient && { patient_id: values.patient.id }),
+      };
+
+      delete payload.doctor;
+      delete payload.patient;
+
+      const query = new URLSearchParams({
+        values: JSON.stringify(payload),
+      });
+
       const response = await axiosTokenInstance.put(
-        `/api/write?model=clinic.appointment&db=network&ids=[${id}]&values=${JSON.stringify(
-          values
-        )}`
+        `/api/write?model=clinic.appointment&db=network&ids=[${id}]&${query.toString()}`
       );
+
       if (!Array.isArray(response.data) || !response.data.includes(id)) {
-        return rejectWithValue("Failed to update event");
+        return rejectWithValue("Failed to update appointment");
       }
 
-      // Construct the partial update for the Redux state
-      const changes: Partial<CalendarEvent> = {};
-      if (appointment_start) {
-        changes.start = dayjs(appointment_start).format("YYYY-MM-DD HH:mm");
-      }
-      if (appointment_end) {
-        changes.end = dayjs(appointment_end).format("YYYY-MM-DD HH:mm");
-      }
-      if (doctor_id !== undefined) {
-        changes.doctor = { id: doctor_id, name: "Updated" }; // Placeholder
-        changes.color = getDoctorColor(doctor_id);
-      }
-      if (patient_id !== undefined) {
-        changes.patient = { id: patient_id, name: "Updated" }; // Placeholder
-      }
       dispatch(
         showSnackbar({
           message: "Appointment updated successfully!",
           severity: "success",
         })
       );
-      return { id, changes };
+
+      return {
+        id,
+        name: values.name ?? "",
+        appointment_start: values.appointment_start ?? "",
+        appointment_end: values.appointment_end ?? "",
+        method: values.method ?? "in_person",
+        status: values.status ?? "scheduled",
+        remarks: values.remarks ?? "",
+        comments: values.comments ?? "",
+        doctor: values.doctor ?? { id: -1, name: "Unknown" },
+        patient: values.patient ?? { id: -1, name: "Unknown" },
+        start: values.appointment_start
+          ? dayjs(values.appointment_start).format("YYYY-MM-DD HH:mm")
+          : "",
+        end: values.appointment_end
+          ? dayjs(values.appointment_end).format("YYYY-MM-DD HH:mm")
+          : "",
+        color: values.doctor ? getDoctorColor(values.doctor.id) : "#999999",
+      };
     } catch (err: unknown) {
       dispatch(
         showSnackbar({
@@ -312,10 +311,10 @@ export const updateEvent = createAsyncThunk<
       );
       if (axios.isAxiosError(err) && err.response) {
         return rejectWithValue(
-          err.response.data?.detail || "Failed to update event"
+          err.response.data?.detail || "Failed to update appointment"
         );
       }
-      return rejectWithValue("Failed to update event");
+      return rejectWithValue("Failed to update appointment");
     }
   }
 );
@@ -357,16 +356,17 @@ const appointmentSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(updateEvent.fulfilled, (state, action) => {
-        const { id, changes } = action.payload;
-        const index = state.appointments.findIndex((event) => event.id === id);
-        if (index !== -1) {
-          state.appointments[index] = {
-            ...state.appointments[index],
-            ...changes,
-          };
+      .addCase(
+        updateEvent.fulfilled,
+        (state, action: PayloadAction<CalendarEvent>) => {
+          const index = state.appointments.findIndex(
+            (e) => e.id === action.payload.id
+          );
+          if (index !== -1) {
+            state.appointments[index] = action.payload;
+          }
         }
-      });
+      );
   },
 });
 

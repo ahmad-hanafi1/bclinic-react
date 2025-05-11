@@ -55,8 +55,9 @@ const Layout = () => {
 
   const drawerContent = (
     <>
-      <DrawerHeader>
-        {!isMdUp ? (
+      {/* ✅ DrawerHeader only for small screens */}
+      {!isMdUp && (
+        <DrawerHeader>
           <IconButton onClick={() => setDrawerOpen(false)}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
@@ -64,8 +65,9 @@ const Layout = () => {
               <ChevronRightIcon />
             )}
           </IconButton>
-        ) : null}
-      </DrawerHeader>
+        </DrawerHeader>
+      )}
+
       <Box
         sx={{
           display: "flex",
@@ -117,7 +119,7 @@ const Layout = () => {
         <Toolbar>
           <IconButton
             color="inherit"
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => setDrawerOpen(!drawerOpen)}
             edge="start"
             sx={{ mr: 2, ...(drawerOpen && isMdUp && { display: "none" }) }}
           >

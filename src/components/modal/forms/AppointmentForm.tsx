@@ -13,10 +13,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../utils/hooks";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { hideModal } from "../../../data/features/modal/modalSlice";
-import {
-  CalendarEvent,
-  createEvent,
-} from "../../../data/features/calender/calenderSlice";
+import { CalendarEvent } from "../../../data/features/calender/calenderSlice";
 
 interface AppointmentFormInputs {
   name: string;
@@ -31,12 +28,14 @@ interface AppointmentFormInputs {
   status: "scheduled" | "delayed" | "checked_in" | "running" | "checked_out";
 }
 
-const AddAppointmentForm = () => {
+const AppointmentForm = () => {
   const dispatch = useAppDispatch();
   const { appointments } = useAppSelector((state) => state.calender);
   const { patients } = useAppSelector((state) => state.patient);
   const { doctors } = useAppSelector((state) => state.doctor);
-  const { props } = useAppSelector((state) => state.modal);
+  const { props, onSubmit } = useAppSelector((state) => state.modal);
+  const editingAppointment = props?.appointment as CalendarEvent | undefined;
+
   const [doctorAppointments, setDoctorAppointments] = useState<CalendarEvent[]>(
     []
   );
@@ -44,16 +43,22 @@ const AddAppointmentForm = () => {
 
   const { control, handleSubmit, setValue } = useForm<AppointmentFormInputs>({
     defaultValues: {
-      name: "",
-      date: null,
-      startTime: null,
-      endTime: null,
-      patient: {},
-      doctor: {},
-      remarks: "",
-      comments: "",
-      method: "in_person",
-      status: "scheduled",
+      name: editingAppointment?.name || "",
+      date: editingAppointment?.start
+        ? dayjs(editingAppointment.start).toDate()
+        : null,
+      startTime: editingAppointment?.start
+        ? dayjs(editingAppointment.start).toDate()
+        : null,
+      endTime: editingAppointment?.end
+        ? dayjs(editingAppointment.end).toDate()
+        : null,
+      patient: editingAppointment?.patient || {},
+      doctor: editingAppointment?.doctor || {},
+      remarks: editingAppointment?.remarks || "",
+      comments: editingAppointment?.comments || "",
+      method: editingAppointment?.method || "in_person",
+      status: editingAppointment?.status || "scheduled",
     },
   });
 
@@ -61,44 +66,34 @@ const AddAppointmentForm = () => {
   const startTime = useWatch({ control, name: "startTime" });
   const endTime = useWatch({ control, name: "endTime" });
   const date = useWatch({ control, name: "date" });
-  console.log(doctor);
+
+  function roundToNext5Minutes(date: dayjs.Dayjs) {
+    const remainder = 5 - (date.minute() % 5);
+    return date
+      .add(remainder === 5 ? 0 : remainder, "minute")
+      .startOf("minute");
+  }
 
   useEffect(() => {
+    if (!doctor?.id) return;
     setDoctorAppointments(
-      appointments.filter((entry) => entry.doctor.id === doctor?.id)
+      appointments.filter(
+        (entry) =>
+          entry.doctor.id === doctor.id && entry.id !== editingAppointment?.id 
+      )
     );
+  }, [doctor, appointments, editingAppointment?.id]);
 
-    return () => {};
-  }, [doctor]);
-
-  console.log(doctor, doctorAppointments);
   useEffect(() => {
-    const initialDate = dayjs(props?.dateTime as string);
-    setValue("date", initialDate.toDate());
-    setValue("startTime", initialDate.toDate());
-    setValue("endTime", initialDate.add(1, "hour").toDate());
-  }, [props?.dateTime, setValue]);
+    if (!props?.dateTime || editingAppointment) return;
+    const initialDate = dayjs(props.dateTime as string);
+    const roundedStart = roundToNext5Minutes(initialDate);
+    const roundedEnd = roundedStart.add(1, "hour");
 
-  const submitFunction = (data: AppointmentFormInputs) => {
-    if (formError) return;
-    const date = dayjs(data.date).format("YYYY-MM-DD");
-    const startTime = dayjs(data.startTime).format("HH:mm:ss");
-    const endTime = dayjs(data.endTime).format("HH:mm:ss");
-    dispatch(
-      createEvent({
-        name: data.name,
-        appointment_start: `${date} ${startTime}`,
-        appointment_end: `${date} ${endTime}`,
-        status: data.status,
-        method: data.method,
-        remarks: data.remarks,
-        comments: data.comments,
-        patient: data.patient,
-        doctor: data.doctor,
-      })
-    );
-    dispatch(hideModal());
-  };
+    setValue("date", roundedStart.toDate());
+    setValue("startTime", roundedStart.toDate());
+    setValue("endTime", roundedEnd.toDate());
+  }, [props?.dateTime, editingAppointment, setValue]);
 
   useEffect(() => {
     if (!startTime || !endTime || !date || !doctorAppointments.length) return;
@@ -115,21 +110,24 @@ const AddAppointmentForm = () => {
     const isOverlapping = doctorAppointments.some((appt) => {
       const apptStart = dayjs(appt.start);
       const apptEnd = dayjs(appt.end);
-
       return newStart.isBefore(apptEnd) && newEnd.isAfter(apptStart);
     });
 
-    if (isOverlapping) {
-      setFormError(
-        "This doctor already has an appointment during the selected time."
-      );
-    } else {
-      setFormError(null);
-    }
+    setFormError(
+      isOverlapping
+        ? "This doctor already has an appointment during the selected time."
+        : null
+    );
   }, [startTime, endTime, date, doctorAppointments]);
 
+  const submitForm = (data: AppointmentFormInputs) => {
+    if (formError) return;
+    if (onSubmit) onSubmit(data);
+    dispatch(hideModal());
+  };
+
   return (
-    <form onSubmit={handleSubmit(submitFunction)} id="modal-form">
+    <form onSubmit={handleSubmit(submitForm)} id="modal-form">
       {formError && (
         <Box sx={{ mb: 2, color: "error.main", fontWeight: 500 }}>
           {formError}
@@ -156,9 +154,7 @@ const AddAppointmentForm = () => {
             <DatePicker
               label="Date"
               {...field}
-              slotProps={{
-                textField: { fullWidth: true, size: "small" },
-              }}
+              slotProps={{ textField: { fullWidth: true, size: "small" } }}
             />
           )}
         />
@@ -168,28 +164,28 @@ const AddAppointmentForm = () => {
           control={control}
           render={({ field }) => (
             <TimePicker
+              minutesStep={5}
               label="Start Time"
               {...field}
-              slotProps={{
-                textField: { fullWidth: true, size: "small" },
-              }}
+              slotProps={{ textField: { fullWidth: true, size: "small" } }}
             />
           )}
         />
+
         <Controller
           name="endTime"
           control={control}
           render={({ field }) => (
             <TimePicker
+              minutesStep={5}
               minTime={startTime || undefined}
               label="End Time"
               {...field}
-              slotProps={{
-                textField: { fullWidth: true, size: "small" },
-              }}
+              slotProps={{ textField: { fullWidth: true, size: "small" } }}
             />
           )}
         />
+
         <FormControl fullWidth size="small">
           <InputLabel id="patient-label">Patient</InputLabel>
           <Controller
@@ -216,6 +212,7 @@ const AddAppointmentForm = () => {
             )}
           />
         </FormControl>
+
         <FormControl fullWidth size="small">
           <InputLabel id="doctor-label">Doctor</InputLabel>
           <Controller
@@ -242,6 +239,7 @@ const AddAppointmentForm = () => {
             )}
           />
         </FormControl>
+
         <Controller
           name="method"
           control={control}
@@ -260,6 +258,7 @@ const AddAppointmentForm = () => {
             </FormControl>
           )}
         />
+
         <Controller
           name="status"
           control={control}
@@ -281,6 +280,7 @@ const AddAppointmentForm = () => {
             </FormControl>
           )}
         />
+
         <Controller
           name="remarks"
           control={control}
@@ -288,6 +288,7 @@ const AddAppointmentForm = () => {
             <TextField label="Remarks" fullWidth size="small" {...field} />
           )}
         />
+
         <Controller
           name="comments"
           control={control}
@@ -300,4 +301,4 @@ const AddAppointmentForm = () => {
   );
 };
 
-export default AddAppointmentForm;
+export default AppointmentForm;

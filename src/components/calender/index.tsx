@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useCalendarApp, ScheduleXCalendar } from "@schedule-x/react";
 import {
   viewWeek,
@@ -14,8 +14,13 @@ import CustomDateGridEvent from "./CustomDateGridEvent";
 import "@schedule-x/theme-default/dist/index.css";
 import { useAppDispatch, useAppSelector } from "../../utils/hooks";
 import { showModal } from "../../data/features/modal/modalSlice";
-import { updateEvent } from "../../data/features/calender/calenderSlice";
+import {
+  CalendarEvent,
+  createEvent,
+  updateEvent,
+} from "../../data/features/calender/calenderSlice";
 import dayjs from "dayjs";
+import { showSnackbar } from "../../data/features/snackbar/snackbarSlice";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -28,14 +33,19 @@ function Calendar() {
   const eventsServicePlugin = useMemo(() => createEventsServicePlugin(), []);
   const eventModal = createEventModalPlugin();
   const { appointments } = useAppSelector((state) => state.calender);
+  const [doctorId, setDoctorId] = useState<number | null>(null);
+  const [updatedEventId, setUpdatedEventId] = useState<number | null>(null);
+  const [doctorAppointments, setDoctorAppointments] = useState<CalendarEvent[]>(
+    []
+  );
+  console.log("doctorAppointments from outside component:", doctorAppointments);
   const dispatch = useAppDispatch();
-  console.log(appointments);
   const calendar = useCalendarApp({
     locale: "en-US",
     selectedDate: today,
     defaultView: viewWeek.name,
     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
-    plugins: [createDragAndDropPlugin(15), eventsServicePlugin, eventModal],
+    plugins: [createDragAndDropPlugin(5), eventsServicePlugin, eventModal],
 
     weekOptions: {
       eventOverlap: false,
@@ -53,13 +63,55 @@ function Calendar() {
 
       onEventUpdate(updatedEvent) {
         console.log("onEventUpdate", updatedEvent);
+        const newStart = dayjs(updatedEvent.start);
+        const newEnd = dayjs(updatedEvent.end);
+
+        // Extract doctor ID from the updated event
+        const doctorId =
+          typeof updatedEvent.doctor === "object"
+            ? updatedEvent.doctor?.id
+            : updatedEvent.doctor;
+
+        // Get current appointments from Redux store
+        const currentDoctorAppointments = appointments.filter((appt) => {
+          const apptDoctorId =
+            typeof appt.doctor === "object" ? appt.doctor.id : appt.doctor;
+          return (
+            apptDoctorId === doctorId && appt.id !== Number(updatedEvent.id)
+          );
+        });
+        console.log("currentDoctorAppointments", currentDoctorAppointments);
+        // Check for overlapping appointments
+        const isOverlapping = currentDoctorAppointments.some((appt) => {
+          const apptStart = dayjs(appt.start);
+          const apptEnd = dayjs(appt.end);
+
+          return newStart.isBefore(apptEnd) && newEnd.isAfter(apptStart);
+        });
+
+        if (isOverlapping) {
+          dispatch(
+            showSnackbar({
+              message: "This doctor has overlapping appointments.",
+              severity: "error",
+            })
+          );
+          return false; // Prevent the update
+        }
+
         dispatch(
           updateEvent({
             id: Number(updatedEvent.id),
-            appointment_start: dayjs(updatedEvent.start).format(
-              "YYYY-MM-DD HH:mm"
-            ),
-            appointment_end: dayjs(updatedEvent.end).format("YYYY-MM-DD HH:mm"),
+            values: {
+              appointment_start: newStart.format("YYYY-MM-DD HH:mm"),
+              appointment_end: newEnd.format("YYYY-MM-DD HH:mm"),
+              doctor: updatedEvent.doctor,
+              patient: updatedEvent.patient,
+              method: updatedEvent.method,
+              status: updatedEvent.status,
+              remarks: updatedEvent.remarks,
+              comments: updatedEvent.comments,
+            },
           })
         );
       },
@@ -81,9 +133,30 @@ function Calendar() {
         // setDialogOpen(true);
         dispatch(
           showModal({
-            title: "Create Appointment",
+            title: "Add Appointment",
             type: "appointment",
-            props: { dateTime: dateTime },
+            onSubmit: (data) => {
+              const dateStr = dayjs(data.date).format("YYYY-MM-DD");
+              const startStr = dayjs(data.startTime).format("HH:mm:ss");
+              const endStr = dayjs(data.endTime).format("HH:mm:ss");
+
+              dispatch(
+                createEvent({
+                  name: data.name,
+                  appointment_start: `${dateStr} ${startStr}`,
+                  appointment_end: `${dateStr} ${endStr}`,
+                  method: data.method,
+                  status: data.status,
+                  remarks: data.remarks,
+                  comments: data.comments,
+                  doctor: data.doctor,
+                  patient: data.patient,
+                })
+              );
+            },
+            props: {
+              dateTime,
+            },
           })
         );
       },
@@ -136,6 +209,12 @@ function Calendar() {
     }
   }, [appointments, eventsServicePlugin]);
 
+  useEffect(() => {
+    const filteredAppointments = appointments.filter(
+      (entry) => entry.doctor.id === doctorId && entry.id !== updatedEventId
+    );
+    setDoctorAppointments(filteredAppointments);
+  }, [appointments, doctorId, updatedEventId]);
   return (
     <>
       <ScheduleXCalendar

@@ -1,4 +1,8 @@
+import EditIcon from "@mui/icons-material/Edit";
 import dayjs from "dayjs";
+import { updateEvent } from "../../data/features/calender/calenderSlice";
+import { showModal } from "../../data/features/modal/modalSlice";
+import { useAppDispatch } from "../../utils/hooks";
 
 type CalendarEvent = {
   id: number | string;
@@ -12,7 +16,7 @@ type CalendarEvent = {
 };
 
 type Props = {
-  calendarEvent: CalendarEvent;
+  calendarEvent: CalendarEvent; // optional callback
 };
 
 const statusColors: Record<CalendarEvent["status"], string> = {
@@ -24,59 +28,80 @@ const statusColors: Record<CalendarEvent["status"], string> = {
 };
 
 export default function CustomTimeGridEvent({ calendarEvent }: Props) {
+  const dispatch = useAppDispatch();
   const { start, end, patient, doctor, color, status } = calendarEvent;
   const title = `${dayjs(start).format("hh:mm A")} - ${dayjs(end).format(
     "hh:mm A"
   )}`;
-
   return (
-    <div
-      style={{
-        position: "relative",
-        height: "100%",
-        width: "100%",
-        background: "#1F2937", // Tailwind slate-800
-        color: "#F9FAFB", // Tailwind gray-50
-        padding: "0px 12px",
-        borderRadius: 8,
-        fontSize: 12,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        gap: 4,
-      }}
-    >
-      {/* Status Indicator */}
+    <div className="group relative h-[97%] w-full m-auto border-1 border-gray-100 bg-gray-200 text-gray-200 rounded-lg p-1 pr-[1.1rem] flex flex-col justify-start gap-.5  shadow-md overflow-hidden">
+      {/* Status Bar */}
       <div
         style={{
-          position: "absolute",
-          height: "60%",
-          width: "6px",
           backgroundColor: statusColors[status],
-          right: 6,
-          top: "20%",
-          borderRadius: 4,
         }}
-        title={status.replace("_", " ")}
+        className={`absolute h-full w-4 top-0 right-0`}
       />
+      {/* Edit Button (shown on hover) */}
 
-      {/* Time */}
-      <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
+      <div className="absolute top-2 right-2 group-hover:opacity-100 opacity-0 transition-opacity duration-200 ease-in-out z-10">
+        <EditIcon
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch(
+              showModal({
+                title: "Edit Appointment",
+                type: "appointment",
+                onSubmit: (data) => {
+                  const dateStr = dayjs(data.date).format("YYYY-MM-DD");
+                  const startStr = dayjs(data.startTime).format("HH:mm:ss");
+                  const endStr = dayjs(data.endTime).format("HH:mm:ss");
 
+                  dispatch(
+                    updateEvent({
+                      id: Number(calendarEvent.id),
+                      values: {
+                        name: data.name,
+                        appointment_start: `${dateStr} ${startStr}`,
+                        appointment_end: `${dateStr} ${endStr}`,
+                        method: data.method,
+                        status: data.status,
+                        remarks: data.remarks,
+                        comments: data.comments,
+                        doctor: data.doctor,
+                        patient: data.patient,
+                      },
+                    })
+                  );
+                },
+                props: {
+                  appointment: calendarEvent,
+                },
+              })
+            );
+          }}
+          fontSize="small"
+          sx={{
+            color: "#4b5563",
+          }}
+        />
+      </div>
+
+      {/* title */}
+      <h1 className="text-gray-600 font-semibold text-[1rem] md:text-[.7rem] xl:text-[.8rem] ">
+        {title}
+      </h1>
       {/* Doctor */}
-      <div>
-        <span style={{ fontWeight: 500, opacity: 0.85 }}>Doctor: </span>
-        <span style={{ fontWeight: 600, color: color }}>
-          {capitalize(doctor.name)}
-        </span>
-      </div>
-
+      <h1
+        style={{ color: color }}
+        className=" text-[.7rem] md:text-[.6rem] xl:text-[.75rem] truncate font-semibold "
+      >
+        {capitalize(doctor.name)}
+      </h1>
       {/* Patient */}
-      <div>
-        <span style={{ fontWeight: 500, opacity: 0.85 }}>Patient: </span>
-        <span style={{ fontWeight: 600 }}>{capitalize(patient.name)}</span>
-      </div>
+      <h1 className="text-gray-500 text-[.7rem] md:text-[.6rem] xl:text-[.75rem] font-semibold truncate">
+        {capitalize(patient.name)}
+      </h1>
     </div>
   );
 }
